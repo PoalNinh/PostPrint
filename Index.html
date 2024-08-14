@@ -50,6 +50,11 @@
         <select id="accountSelect" class="form-control mb-2" style="display: none;" onchange="updateAccountInfo()">
             <option value="vcb">VPB: 113809086 - Chủ TK: LE BIC NGOC</option>
         </select>
+        <label for="printerIp">IP máy in:</label>
+        <input type="text" id="printerIp" placeholder="Ví dụ: 192.168.1.100" class="form-control mb-2">
+
+        <label for="printerPort">Cổng máy in:</label>
+        <input type="number" id="printerPort" placeholder="Ví dụ: 9100" class="form-control mb-2">
         <button onclick="printDocument()" class="btn btn-info mb-2">
             <i class="fa fa-print"></i> In
         </button>
@@ -60,7 +65,18 @@
     <div id="content">
         <table class="header-table">
             <tr>
+                
+                <td class="title-cell">
+                    <p><b>SHOP NHÀ NGỐ <br></b>
+                        CHUYÊN HÀNG XÁCH TAY THAILAND <br>
+                        ĐIA CHỈ: 21 LINH ĐƯỜNG,LINH ĐÀM.HN <br>
+                        SĐT:0943566966</p>
 
+                </td>
+
+            </tr>
+            <tr>
+                
                 <td class="title-cell">
                     <p><b>HÓA ĐƠN BÁN HÀNG</b></p>
 
@@ -71,13 +87,13 @@
         <hr>
         <table class="responsive-table">
             <tr>
-                <td>Khách hàng: <span id="tenkh"></span></td>
+                <th>Khách hàng: <span id="tenkh"></span></th>
             </tr>
             <tr>
-                <td>Số điện thoại: <span id="sodtkh"></span></td>
+                <th>Số điện thoại: <span id="sodtkh"></span></th>
             </tr>
             <tr>
-                <td>Địa chỉ: <span id="chinhanh"></span></td>
+                <th>Địa chỉ: <span id="chinhanh"></span></th>
             </tr>
         </table>
         <hr>
@@ -138,7 +154,6 @@
         </div>
     </div>
     <script>
-        // api của 
         const API_URL = 'https://script.google.com/macros/s/AKfycbwLSIJXzRVaOzEsFqWtgwDWQpjRKyrp8CM6gfEem6qmzmqkti6HLp-EgwZkiotUX9LP/exec';
 
         // Biến toàn cục để lưu trữ dữ liệu
@@ -244,9 +259,55 @@
 
         });
 
-     
+
+        async function printDocument() {
+    try {
+        updatePageFormat();
+        const printerIp = document.getElementById('printerIp').value.trim();
+        const printerPort = document.getElementById('printerPort').value.trim();
+        const paperSize = document.getElementById('select-paper-size').value;
+        const orientation = document.getElementById('select-paper-orientation').value;
+
+        if (printerIp && printerPort) {
+            const contentToPrint = document.getElementById('content').innerHTML;
+
+            const printData = {
+                content: contentToPrint,
+                paperSize,
+                orientation
+            };
+
+            const response = await fetch(`http://${printerIp}:${printerPort}/api/print`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(printData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`Lệnh in đã được gửi thành công tới máy in tại ${printerIp}:${printerPort}\nKích thước giấy: ${paperSize}\nHướng in: ${orientation}`);
+            } else {
+                throw new Error(data.message || 'Không xác định được lỗi từ máy chủ');
+            }
+        } else {
+            window.print();
+        }
+    } catch (error) {
+        console.error('Lỗi khi in tài liệu:', error);
+        alert(`Đã xảy ra lỗi khi gửi lệnh in: ${error.message}\nHệ thống sẽ mở form in mặc định.`);
+        window.print();
+    }
+}
+  
     </script>
-    <script src="js.js"></script>
+    <script src="js.js" ></script>
 </body>
 
 </html>
