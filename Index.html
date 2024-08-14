@@ -5,9 +5,8 @@
     <meta charset="utf-8">
     <title>Hóa đơn bán hàng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="//www.google.com/jsapi"></script>
-    <script>window.parent.maeExportApis_();</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
     <style>
         /* Giữ nguyên phần CSS của bạn */
@@ -239,6 +238,43 @@
             width: 3rem;
             height: 3rem;
         }
+
+        /* Media query cho khổ giấy */
+        [data-paper-size='A4'] {
+            width: 210mm;
+        }
+
+        [data-paper-size='A5'] {
+            width: 148mm;
+        }
+
+        [data-paper-size='A6'] {
+            width: 105mm;
+        }
+
+        [data-paper-size='A7'] {
+            width: 74mm;
+        }
+
+        [data-paper-size='thermal-80'] {
+            width: 80mm;
+        }
+
+        [data-paper-size='thermal-58'] {
+            width: 58mm;
+        }
+
+        /* Kích thước tùy chỉnh */
+        [data-paper-size='custom'] {
+            width: var(--custom-width, 210mm);
+        }
+
+        /* Chiều cao tối thiểu cho nội dung */
+        #content {
+            min-height: auto;
+            height: auto;
+            /* Chiều cao dựa trên nội dung */
+        }
     </style>
 </head>
 
@@ -280,7 +316,7 @@
         <button onclick="printDocument()" class="btn btn-info mb-2">
             <i class="fa fa-print"></i> In
         </button>
-        <button onclick="exportToPDF()" hidden class="btn btn-primary">
+        <button onclick="exportToPDF()" class="btn btn-primary">
             <i class="fa fa-file-pdf"></i> Xuất PDF
         </button>
     </div>
@@ -297,7 +333,7 @@
             <h4 class="inline" id="sodtkh"></h4>
         </div>
         <div class="center">
-            <dc class="dc" id="chinhanh"></dc>
+            <p class="dc" id="chinhanh"></p>
         </div>
         <div class="invoiceContainer">
             <table id="table1">
@@ -476,10 +512,11 @@
             const qrCodeImage = document.getElementById('qrCodeImage');
             if (qrCodeImage) qrCodeImage.src = qrUrl;
         }
-
+        // Hàm cập nhật kích thước giấy và điều chỉnh nội dung
         function updatePageFormat() {
             const size = document.getElementById('select-paper-size').value;
             const orientation = document.getElementById('select-paper-orientation').value;
+
             document.body.setAttribute('data-paper-size', size);
             document.body.setAttribute('data-paper-orientation', orientation);
 
@@ -487,39 +524,77 @@
             adjustFontSize(size);
         }
 
+        // Điều chỉnh kích thước nội dung dựa trên khổ giấy
         function adjustContentSize(size, orientation) {
-            const content = document.getElementById('content');
             let width, height;
+
             switch (size) {
-                case 'A4': width = '210mm'; height = '297mm'; break;
-                case 'A5': width = '148mm'; height = '210mm'; break;
-                case 'A6': width = '105mm'; height = '148mm'; break;
-                case 'A7': width = '74mm'; height = '105mm'; break;
-                case 'thermal-80': width = '80mm'; height = 'auto'; break;
-                case 'thermal-58': width = '58mm'; height = 'auto'; break;
+                case 'A4':
+                    width = '210mm';
+                    height = '297mm';
+                    break;
+                case 'A5':
+                    width = '148mm';
+                    height = '210mm';
+                    break;
+                case 'A6':
+                    width = '105mm';
+                    height = '148mm';
+                    break;
+                case 'A7':
+                    width = '74mm';
+                    height = '105mm';
+                    break;
+                case 'thermal-80':
+                    width = '80mm';
+                    height = 'auto';
+                    break;
+                case 'thermal-58':
+                    width = '58mm';
+                    height = 'auto';
+                    break;
                 case 'custom':
                     width = document.getElementById('custom-width').value + 'mm';
                     height = document.getElementById('custom-height').value + 'mm';
                     break;
-                default: width = '210mm'; height = '297mm';
+                default:
+                    width = '210mm';
+                    height = '297mm';
             }
+
             if (orientation === 'landscape') {
                 [width, height] = [height, width];
             }
+
+            const content = document.getElementById('content');
             content.style.width = width;
+            // Không đặt chiều cao cố định, để chiều cao tự động điều chỉnh theo nội dung
             content.style.minHeight = height;
         }
 
         function adjustFontSize(size) {
             const content = document.getElementById('content');
             let fontSize;
+
             switch (size) {
-                case 'A4': fontSize = '12px'; break;
-                case 'A5': fontSize = '10px'; break;
-                case 'A6': case 'A7': fontSize = '8px'; break;
-                case 'thermal-80': case 'thermal-58': fontSize = '8px'; break;
-                default: fontSize = '12px';
+                case 'A4':
+                    fontSize = '12px';
+                    break;
+                case 'A5':
+                    fontSize = '10px';
+                    break;
+                case 'A6':
+                case 'A7':
+                    fontSize = '8px';
+                    break;
+                case 'thermal-80':
+                case 'thermal-58':
+                    fontSize = '8px';
+                    break;
+                default:
+                    fontSize = '12px';
             }
+
             content.style.fontSize = fontSize;
         }
 
@@ -529,7 +604,28 @@
             const printerPort = document.getElementById('printerPort').value.trim();
 
             if (printerIp && printerPort) {
-                // Implement logic to send print job to network printer
+                const contentToPrint = document.getElementById('content').innerHTML;
+                    
+                    const printData = {
+                        content: contentToPrint,
+                        paperSize,
+                        orientation
+                    };
+
+                    const response =  fetch(`http://${printerIp}:${printerPort}/api/print`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(printData),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data =  response.json();
+
                 alert(`Gửi lệnh in đến máy in tại ${printerIp}:${printerPort}`);
             } else {
                 window.print();
@@ -550,6 +646,7 @@
             html2pdf().from(element).set(opt).save();
         }
 
+        // Thêm các sự kiện cần thiết khi tài liệu được tải xong
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const SOBH = urlParams.get('SOBH');
@@ -560,11 +657,11 @@
                 hideLoading();
             }
 
-            // Thiết lập các event listener
             document.getElementById('select-paper-size').addEventListener('change', function () {
                 document.getElementById('custom-size-inputs').style.display = this.value === 'custom' ? 'block' : 'none';
                 updatePageFormat();
             });
+
             document.getElementById('select-paper-orientation').addEventListener('change', updatePageFormat);
             document.getElementById('custom-width').addEventListener('input', updatePageFormat);
             document.getElementById('custom-height').addEventListener('input', updatePageFormat);
@@ -573,7 +670,7 @@
 
             updatePageFormat();
             updatePaymentMethod();
-        })
+        });
     </script>
 </body>
 
