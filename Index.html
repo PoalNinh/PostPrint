@@ -160,18 +160,50 @@
 
         @media print {
             body {
-                width: 80mm;
-                margin: 0;
-                padding: 0;
+                width: 80mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
             #content {
-                font-size: 10pt;
-                line-height: 1.2;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 5mm !important;
+                box-shadow: none !important;
             }
 
-            #setup-print {
-                display: none;
+            .header-dau,
+            .shop-name,
+            .shop-info {
+                text-align: center;
+            }
+
+            .shop-name {
+                font-size: 14px !important;
+                font-weight: bold;
+            }
+
+            .shop-info {
+                font-size: 10px !important;
+            }
+
+            .responsive-table {
+                font-size: 10px !important;
+                width: 100% !important;
+            }
+
+            .responsive-table th,
+            .responsive-table td {
+                padding: 2px !important;
+            }
+
+            #qrCodeContainer {
+                text-align: center;
+            }
+
+            #qrcode img {
+                max-width: 50mm !important;
+                height: auto !important;
             }
         }
 
@@ -591,11 +623,370 @@
                 }
             }
         }
+        function generateQRCode() {
+            const accountSelect = document.getElementById('accountSelect');
+            const selectedAccount = accountSelect.value;
+            const amountElement = document.getElementById('conlai');
+            const amount = parseFloat(amountElement.textContent.replace(/[^\d]/g, ''));
+
+            if (isNaN(amount)) {
+                console.error('Không thể lấy số tiền hợp lệ');
+                return;
+            }
+
+            let bankId, accountNo, accountName;
+            if (selectedAccount === 'vcb') {
+                bankId = '970432';
+                accountNo = '113809086';
+                accountName = 'LE BIC NGOC';
+            }
+
+            const addInfo = `Thanh toan don hang `;
+            const template = 'compact';
+
+            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
+
+            const qrcode = document.getElementById('qrcode');
+            qrcode.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = qrUrl;
+            img.alt = 'QR Code for payment';
+            qrcode.appendChild(img);
+            document.getElementById('qrCodeContainer').style.display = 'flex';
+
+            adjustQRCodeSize();
+        }
+
+        function updatePageFormat() {
+    const size = document.getElementById('select-paper-size').value;
+    const orientation = document.getElementById('select-paper-orientation').value;
+    document.body.setAttribute('data-paper-size', size);
+    document.body.setAttribute('data-paper-orientation', orientation);
+
+    adjustContentSize(size, orientation);
+    adjustFontSize(size);
+    adjustImageSize(size);
+    adjustQRCodeSize();
+    hideElementsForPrint(size); // Thêm dòng này
+}
+
+
+        function adjustContentSize(size, orientation) {
+            const content = document.getElementById('content');
+            let width, height;
+            switch (size) {
+                case 'A1': width = '594mm'; height = '841mm'; break;
+                case 'A2': width = '420mm'; height = '594mm'; break;
+                case 'A3': width = '297mm'; height = '420mm'; break;
+                case 'A4': width = '210mm'; height = '297mm'; break;
+                case 'A5': width = '148mm'; height = '210mm'; break;
+                case 'A6': width = '105mm'; height = '148mm'; break;
+                case 'A7': width = '74mm'; height = '105mm'; break;
+                case 'thermal-80':
+                    width = '80mm';
+                    height = 'auto';
+                    content.style.minHeight = 'auto';
+                    break;
+                case 'thermal-58':
+                    width = '58mm';
+                    height = 'auto';
+                    content.style.minHeight = 'auto';
+                    break;
+                case 'custom':
+                    width = document.getElementById('custom-width').value + 'mm';
+                    height = document.getElementById('custom-height').value + 'mm';
+                    break;
+                default: width = '210mm'; height = '297mm';
+            }
+            if (orientation === 'landscape') {
+                [width, height] = [height, width];
+            }
+            content.style.width = width;
+            content.style.minHeight = 'auto';
+            content.style.height = 'auto';
+            content.style.overflow = 'visible';
+            // Đặt lại margin và padding
+            content.style.margin = size.startsWith('thermal') ? '0' : '10mm auto';
+            content.style.padding = size.startsWith('thermal') ? '5mm' : '5mm';
+        }
+
+        function adjustFontSize(size) {
+            const content = document.getElementById('content');
+            let fontSize;
+            switch (size) {
+                case 'A1': fontSize = '18px'; break;
+                case 'A2': fontSize = '16px'; break;
+                case 'A3': fontSize = '14px'; break;
+                case 'A4': fontSize = '12px'; break;
+                case 'A5': fontSize = '10px'; break;
+                case 'A6': fontSize = '9px'; break;
+                case 'A7': fontSize = '8px'; break;
+                case 'thermal-80': fontSize = '8px'; break;
+                case 'thermal-58': fontSize = '6px'; break;
+                case 'custom': fontSize = '12px'; break;
+                default: fontSize = '12px';
+            }
+            content.style.fontSize = fontSize;
+        }
+        function hideElementsForPrint(size) {
+            const elementsToHide = document.querySelectorAll('.hide-on-print');
+            elementsToHide.forEach(el => {
+                el.style.display = size.startsWith('thermal') ? 'none' : '';
+            });
+        }
+        function adjustImageSize(size) {
+            const logo = document.querySelector('.logo');
+            const qrCode = document.querySelector('.qr-code');
+            let imageSize;
+            switch (size) {
+                case 'A1': case 'A2': imageSize = '150px'; break;
+                case 'A3': imageSize = '120px'; break;
+                case 'A4': imageSize = '100px'; break;
+                case 'A5': imageSize = '80px'; break;
+                case 'A6': imageSize = '60px'; break;
+                case 'A7': imageSize = '40px'; break;
+                case 'thermal-80': imageSize = '60px'; break;
+                case 'thermal-58': imageSize = '60px'; break;
+                case 'custom': imageSize = '100px'; break;
+                default: imageSize = '100px';
+            }
+            if (logo) logo.style.maxWidth = imageSize;
+            if (qrCode) qrCode.style.maxWidth = imageSize;
+        }
+
+
+        async function printDocument() {
+            try {
+                updatePageFormat();
+                const printerIp = document.getElementById('printerIp').value.trim();
+                const printerPort = document.getElementById('printerPort').value.trim();
+                const paperSize = document.getElementById('select-paper-size').value;
+                const orientation = document.getElementById('select-paper-orientation').value;
+
+                if (printerIp && printerPort) {
+                    const contentToPrint = document.getElementById('content').innerHTML;
+
+                    const printData = {
+                        content: contentToPrint,
+                        paperSize,
+                        orientation
+                    };
+
+                    const response = await fetch(`http://${printerIp}:${printerPort}/api/print`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(printData),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(`Lệnh in đã được gửi thành công tới máy in tại ${printerIp}:${printerPort}\nKích thước giấy: ${paperSize}\nHướng in: ${orientation}`);
+                    } else {
+                        throw new Error(data.message || 'Không xác định được lỗi từ máy chủ');
+                    }
+                } else {
+                    updatePageFormat();
+                    window.print();
+                }
+            } catch (error) {
+                console.error('Lỗi khi in tài liệu:', error);
+                alert(`Đã xảy ra lỗi khi gửi lệnh in: ${error.message}\nHệ thống sẽ mở form in mặc định.`);
+                updatePageFormat();
+                window.print();
+            }
+        }
+        function getQRCodeSize() {
+            const size = document.getElementById('select-paper-size').value;
+            const contentWidth = document.getElementById('content').offsetWidth;
+            let qrSize;
+
+            switch (size) {
+                case 'A4': qrSize = Math.min(128, contentWidth * 0.3); break;
+                case 'A5': qrSize = Math.min(100, contentWidth * 0.4); break;
+                case 'A6': qrSize = Math.min(80, contentWidth * 0.5); break;
+                case 'A7': qrSize = Math.min(60, contentWidth * 0.6); break;
+                case 'thermal-80': qrSize = Math.min(60, contentWidth * 0.7); break;
+                case 'thermal-58': qrSize = Math.min(50, contentWidth * 0.8); break;
+                case 'custom':
+                    qrSize = Math.min(contentWidth * 0.5, 128);
+                    break;
+                default: qrSize = Math.min(80, contentWidth * 0.4);
+            }
+            return `${Math.round(qrSize)}px`;
+        }
+
+        function exportToPDF() {
+            updatePageFormat();
+            const element = document.getElementById('content');
+            const size = document.getElementById('select-paper-size').value;
+            const orientation = document.getElementById('select-paper-orientation').value;
+
+            let format;
+            let isCustomSize = false;
+            switch (size) {
+                case 'A1': format = 'a1'; break;
+                case 'A2': format = 'a2'; break;
+                case 'A3': format = 'a3'; break;
+                case 'A4': format = 'a4'; break;
+                case 'A5': format = 'a5'; break;
+                case 'A6': format = 'a6'; break;
+                case 'A7': format = [74, 105]; break;
+                case 'thermal-80':
+                    format = [80, 250];
+                    isCustomSize = true;
+                    break;
+                case 'thermal-58':
+                    format = [58, 250];
+                    isCustomSize = true;
+                    break;
+                case 'custom':
+                    format = [
+                        parseFloat(document.getElementById('custom-width').value),
+                        parseFloat(document.getElementById('custom-height').value)
+                    ];
+                    isCustomSize = true;
+                    break;
+                default: format = 'a4';
+            }
+
+            const opt = {
+                margin: 0,
+                filename: 'test.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: true },
+                jsPDF: { unit: 'mm', format: format, orientation: orientation }
+            };
+
+            if (!isCustomSize) {
+                opt.pagebreak = { mode: ['avoid-all', 'css', 'legacy'] };
+            }
+
+            html2pdf().from(element).set(opt).save().catch(function (error) {
+                console.error('Lỗi khi tạo PDF:', error);
+                alert('Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại.');
+            });
+        }
+
+
+        function updatePaymentMethod() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const accountSelect = document.getElementById('accountSelect');
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+
+            if (paymentMethod === 'transfer') {
+                accountSelect.style.display = 'block';
+                updateAccountInfo();
+            } else {
+                accountSelect.style.display = 'none';
+                qrCodeContainer.style.display = 'none';
+            }
+        }
+
+        function updateAccountInfo() {
+            const accountSelect = document.getElementById('accountSelect');
+            const selectedAccount = accountSelect.options[accountSelect.selectedIndex];
+            const accountInfo = document.getElementById('accountInfo');
+            accountInfo.textContent = selectedAccount.text;
+
+            generateQRCode();
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            const accountSelect = document.getElementById('accountSelect');
+            const paperSizeSelect = document.getElementById('select-paper-size');
+
+            if (paymentMethodSelect) {
+                paymentMethodSelect.addEventListener('change', updatePaymentMethod);
+            }
+
+            if (accountSelect) {
+                accountSelect.addEventListener('change', updateAccountInfo);
+            }
+
+            if (paperSizeSelect) {
+                paperSizeSelect.addEventListener('change', updatePageFormat);
+            }
+
+            // Gọi updatePaymentMethod và updatePageFormat lần đầu để set up trạng thái ban đầu
+            updatePaymentMethod();
+            updatePageFormat();
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy số phiếu từ URL và đặt nó vào phần tử có id 'sophieu'
+
+
+            const paperSizeSelect = document.getElementById('select-paper-size');
+            const customSizeInputs = document.getElementById('custom-size-inputs');
+
+            paperSizeSelect.addEventListener('change', function () {
+                if (this.value === 'custom') {
+                    customSizeInputs.style.display = 'block';
+                } else {
+                    customSizeInputs.style.display = 'none';
+                }
+                updatePageFormat();
+            });
+
+            document.getElementById('select-paper-orientation').addEventListener('change', updatePageFormat);
+            document.getElementById('custom-width').addEventListener('input', updatePageFormat);
+            document.getElementById('custom-height').addEventListener('input', updatePageFormat);
+
+            updatePageFormat();
+        });
+
+        function numberToWords(number) {
+            const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
+            const tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
+            const scales = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+
+            if (number === 0) return 'không';
+
+            function convertGroup(n) {
+                let result = '';
+                if (n >= 100) {
+                    result += units[Math.floor(n / 100)] + ' trăm ';
+                    n %= 100;
+                }
+                if (n >= 20) {
+                    result += tens[Math.floor(n / 10)] + ' ';
+                    n %= 10;
+                }
+                if (n >= 10) {
+                    result += teens[n - 10] + ' ';
+                } else if (n > 0) {
+                    result += units[n] + ' ';
+                }
+                return result.trim();
+            }
+
+            let result = '';
+            let scaleIndex = 0;
+            while (number > 0) {
+                const group = number % 1000;
+                if (group !== 0) {
+                    result = convertGroup(group) + ' ' + scales[scaleIndex] + ' ' + result;
+                }
+                number = Math.floor(number / 1000);
+                scaleIndex++;
+            }
+            // Viết hoa chữ cái đầu tiên
+            result = result.trim();
+            return result.charAt(0).toUpperCase() + result.slice(1);
+        }
 
 
 
     </script>
-    <script src="js.js"></script>
 </body>
 
 </html>
