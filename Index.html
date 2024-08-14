@@ -159,18 +159,21 @@
         }
 
         @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+
             body {
                 width: 80mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
-            #setup-print {
-                display: none;
-            }
+
             #content {
                 width: 100% !important;
                 margin: 0 !important;
-                padding: 5mm !important;
+                padding: 2mm !important;
                 box-shadow: none !important;
             }
 
@@ -190,13 +193,13 @@
             }
 
             .responsive-table {
-                font-size: 10px !important;
+                font-size: 9px !important;
                 width: 100% !important;
             }
 
             .responsive-table th,
             .responsive-table td {
-                padding: 2px !important;
+                padding: 1px !important;
             }
 
             #qrCodeContainer {
@@ -206,6 +209,14 @@
             #qrcode img {
                 max-width: 50mm !important;
                 height: auto !important;
+            }
+
+            .hide-on-print {
+                display: none !important;
+            }
+            
+            #setup-print {
+                display: none;
             }
         }
 
@@ -660,58 +671,84 @@
         }
 
         function updatePageFormat() {
-    const size = document.getElementById('select-paper-size').value;
-    const orientation = document.getElementById('select-paper-orientation').value;
-    document.body.setAttribute('data-paper-size', size);
-    document.body.setAttribute('data-paper-orientation', orientation);
+            const size = document.getElementById('select-paper-size').value;
+            const orientation = document.getElementById('select-paper-orientation').value;
+            document.body.setAttribute('data-paper-size', size);
+            document.body.setAttribute('data-paper-orientation', orientation);
 
-    adjustContentSize(size, orientation);
-    adjustFontSize(size);
-    adjustImageSize(size);
-    adjustQRCodeSize();
-    hideElementsForPrint(size); // Thêm dòng này
-}
+            adjustContentSize(size, orientation);
+            adjustFontSize(size);
+            adjustImageSize(size);
+            adjustQRCodeSize();
+            hideElementsForPrint(size); // Thêm dòng này
+        }
 
 
         function adjustContentSize(size, orientation) {
             const content = document.getElementById('content');
             let width, height;
-            switch (size) {
-                case 'A1': width = '594mm'; height = '841mm'; break;
-                case 'A2': width = '420mm'; height = '594mm'; break;
-                case 'A3': width = '297mm'; height = '420mm'; break;
-                case 'A4': width = '210mm'; height = '297mm'; break;
-                case 'A5': width = '148mm'; height = '210mm'; break;
-                case 'A6': width = '105mm'; height = '148mm'; break;
-                case 'A7': width = '74mm'; height = '105mm'; break;
-                case 'thermal-80':
-                    width = '80mm';
-                    height = 'auto';
-                    content.style.minHeight = 'auto';
-                    break;
-                case 'thermal-58':
-                    width = '58mm';
-                    height = 'auto';
-                    content.style.minHeight = 'auto';
-                    break;
-                case 'custom':
-                    width = document.getElementById('custom-width').value + 'mm';
-                    height = document.getElementById('custom-height').value + 'mm';
-                    break;
-                default: width = '210mm'; height = '297mm';
-            }
-            if (orientation === 'landscape') {
-                [width, height] = [height, width];
-            }
-            content.style.width = width;
-            content.style.minHeight = 'auto';
-            content.style.height = 'auto';
-            content.style.overflow = 'visible';
-            // Đặt lại margin và padding
-            content.style.margin = size.startsWith('thermal') ? '0' : '10mm auto';
-            content.style.padding = size.startsWith('thermal') ? '5mm' : '5mm';
-        }
+            if (size === 'thermal-80') {
+                content.style.width = '80mm';
+                content.style.minHeight = 'auto';
+                content.style.height = 'auto';
+                content.style.margin = '0';
+                content.style.padding = '2mm';
+                document.body.style.width = '80mm';
+            } else {
+                switch (size) {
+                    case 'A1': width = '594mm'; height = '841mm'; break;
+                    case 'A2': width = '420mm'; height = '594mm'; break;
+                    case 'A3': width = '297mm'; height = '420mm'; break;
+                    case 'A4': width = '210mm'; height = '297mm'; break;
+                    case 'A5': width = '148mm'; height = '210mm'; break;
+                    case 'A6': width = '105mm'; height = '148mm'; break;
+                    case 'A7': width = '74mm'; height = '105mm'; break;
+                    case 'thermal-80':
+                        width = '80mm';
+                        height = 'auto';
+                        content.style.minHeight = 'auto';
+                        break;
+                    case 'thermal-58':
+                        width = '58mm';
+                        height = 'auto';
+                        content.style.minHeight = 'auto';
+                        break;
+                    case 'custom':
+                        width = document.getElementById('custom-width').value + 'mm';
+                        height = document.getElementById('custom-height').value + 'mm';
+                        break;
+                    default: width = '210mm'; height = '297mm';
+                }
+                if (orientation === 'landscape') {
+                    [width, height] = [height, width];
+                }
+                content.style.width = width;
+                content.style.minHeight = 'auto';
+                content.style.height = 'auto';
+                content.style.overflow = 'visible';
+                // Đặt lại margin và padding
+                content.style.margin = size.startsWith('thermal') ? '0' : '10mm auto';
+                content.style.padding = size.startsWith('thermal') ? '5mm' : '5mm';
+            } content.style.overflow = 'visible';
 
+        }
+        function prepareForPrint() {
+            const size = document.getElementById('select-paper-size').value;
+            if (size === 'thermal-80') {
+                document.body.classList.add('thermal-print');
+                const content = document.getElementById('content');
+                content.style.width = '80mm';
+                content.style.margin = '0';
+                content.style.padding = '2mm';
+
+                // Ẩn các phần tử không cần thiết
+                const elementsToHide = document.querySelectorAll('.hide-on-print');
+                elementsToHide.forEach(el => el.style.display = 'none');
+
+                // Điều chỉnh kích thước font chữ
+                document.body.style.fontSize = '9px';
+            }
+        }
         function adjustFontSize(size) {
             const content = document.getElementById('content');
             let fontSize;
@@ -760,6 +797,7 @@
         async function printDocument() {
             try {
                 updatePageFormat();
+                prepareForPrint(); 
                 const printerIp = document.getElementById('printerIp').value.trim();
                 const printerPort = document.getElementById('printerPort').value.trim();
                 const paperSize = document.getElementById('select-paper-size').value;
@@ -767,7 +805,7 @@
 
                 if (printerIp && printerPort) {
                     const contentToPrint = document.getElementById('content').innerHTML;
-
+                    
                     const printData = {
                         content: contentToPrint,
                         paperSize,
