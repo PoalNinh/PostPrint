@@ -3,129 +3,128 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Phiếu giặt trang phục</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Hóa đơn bán hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//www.google.com/jsapi"></script>
+    <script>window.parent.maeExportApis_();</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <style>
-        @page {
-            margin: 0;
-            size: auto;
+        /* Giữ nguyên phần CSS của bạn */
+        td,
+        th {
+            padding: 5px 6px;
         }
 
-        body {
-            background: rgb(204, 204, 204);
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+        p,
+        h3,
+        h4,
+        a {
+            text-align: center;
         }
 
+        h5,
+        h4,
+        h6,
+        p {
+            margin: 3px 0 0 0;
+        }
 
-        hr {
-            margin: 5px 0;
-            /* Giảm margin trên và dưới của các đường kẻ ngang */
+        .invoiceContainer {
+            position: relative;
+        }
+
+        .qrCode {
+            position: right;
+            top: 1px;
+            right: 1px;
         }
 
         p {
-            margin-bottom: 2px;
-            /* Giảm margin dưới của các đoạn văn */
-        }
-
-        table {
-            margin-bottom: 5px;
-            /* Giảm margin dưới của các bảng */
-        }
-
-        #content {
-            background: white;
-            width: 230mm;
-            min-height: 297mm;
-            padding: 5mm;
-            margin: 10mm auto;
-            box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-
-
-        .header-table {
-            width: 100%;
-        }
-
-        .customer-info {
-            text-align: center;
-        }
-
-        .header-dau {
-            text-align: center;
+            line-height: 1;
+            text-align: left;
             font-size: 10px;
         }
 
-        .shop-name {
-            margin-bottom: 5px;
+        tfoot {
+            text-align: center;
+            text-transform: uppercase;
+            font: bold 60% sans-serif;
+        }
+
+        h1 {
+            font: bold 60% sans-serif;
+            text-align: center;
+            line-height: 0.3;
+        }
+
+        dc {
+            font: bold 60% sans-serif;
+            text-align: center;
+            word-wrap: break-word;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 6px;
+            box-sizing: border-box;
+            line-height: 1.2;
+        }
+
+        h3 {
             font: bold 100% sans-serif;
             text-align: center;
+            line-height: 0.1;
             font-size: 20px;
         }
 
-        .shop-info {
-            line-height: 0.5;
-            font: bold 60% sans-serif;
-            font-size: 9px;
+        h4 {
+            font: bold 15px sans-serif;
             text-align: center;
+            text-transform: uppercase;
+            line-height: 0.8;
         }
 
-        .dotted-hr {
-
-            border: none;
-            border-top: 1px dotted #000;
-            color: #fff;
-            background-color: #fff;
-            width: 50%;
-            margin: 5px auto;
-        }
-
-        .logo-cell {
-            width: 20%;
+        h5,
+        h6 {
+            font: bold 50% sans-serif;
             text-align: center;
-        }
-
-        .title-cell {
-            width: 60%;
-            text-align: center;
-        }
-
-        .header-table .title-cell b {
-            font-weight: 700;
-            font-size: 12px;
-        }
-
-        .responsive-table th {
-            font-weight: 600;
-
-        }
-
-        .logo,
-        .qr-code {
-            max-width: 100px;
-        }
-
-        .responsive-table {
-            width: 100%;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .responsive-table th,
-        .responsive-table td {
-            padding: 2px;
+            text-transform: uppercase;
             line-height: 1.2;
-            word-break: break-word;
+        }
+
+        table,
+        td,
+        th {
+            border-bottom: 1px solid #333;
+            border-collapse: collapse;
+            font-size: 10px;
+            line-height: 1;
+        }
+
+        body {
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.3;
+            box-sizing: border-box;
+            height: 297mm;
+            margin: 0 auto;
+            overflow: hidden;
+            padding: 3mm;
+            width: 80mm;
+            background: #FFF;
+            border-radius: 1px;
+            box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
+        }
+
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #table1 {
+            margin: 0 auto;
         }
 
         #setup-print {
@@ -141,215 +140,86 @@
         }
 
         #setup-print select,
+        #setup-print input,
         #setup-print button {
             width: 100%;
             margin-bottom: 10px;
-        }
-
-        #setup-print button:last-child {
-            margin-bottom: 0;
-        }
-
-        .product-info-line {
-            margin-bottom: 5px;
-        }
-
-        .product-info-line strong {
-            font-weight: bold;
-        }
-
-        @media print {
-            @page {
-                size: 80mm auto;
-                margin: 0;
-            }
-
-            body {
-                width: 80mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            #content {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 2mm !important;
-                box-shadow: none !important;
-            }
-
-            .header-dau,
-            .shop-name,
-            .shop-info {
-                text-align: center;
-            }
-
-            .shop-name {
-                font-size: 14px !important;
-                font-weight: bold;
-            }
-
-            .shop-info {
-                font-size: 10px !important;
-            }
-
-            .responsive-table {
-                font-size: 9px !important;
-                width: 100% !important;
-            }
-
-            .responsive-table th,
-            .responsive-table td {
-                padding: 1px !important;
-            }
-
-            #qrCodeContainer {
-                text-align: center;
-            }
-
-            #qrcode img {
-                max-width: 50mm !important;
-                height: auto !important;
-            }
-
-            .hide-on-print {
-                display: none !important;
-            }
-            
-            #setup-print {
-                display: none;
-            }
-        }
-
-        @media (max-width: 21cm) {
-            #content {
-                width: 100%;
-                height: 100%;
-            }
-
-            .responsive-table,
-            .header-table {
-                font-size: 10pt;
-            }
-
-            .logo,
-            .qr-code {
-                max-width: 60px;
-            }
-        }
-
-        @media (max-width: 14.8cm) {
-
-            .responsive-table,
-            .header-table {
-                font-size: 8pt;
-            }
-
-            .logo,
-            .qr-code {
-                max-width: 50px;
-            }
-        }
-
-        @media (max-width: 10.5cm) {
-
-            .responsive-table,
-            .header-table {
-                font-size: 6pt;
-            }
-
-            .logo-cell {
-                display: none;
-            }
-
-            .title-cell {
-                width: 100%;
-            }
-        }
-
-        .strikethrough {
-            text-decoration: line-through;
-        }
-
-        body[data-paper-size^="thermal-"] {
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        body[data-paper-size="thermal-80"] #content {
-            width: 80mm;
-        }
-
-        body[data-paper-size="thermal-58"] #content {
-            width: 58mm;
-        }
-
-        body[data-paper-size^="thermal-"] .qr-cell img,
-        body[data-paper-size^="thermal-"] .logo-cell img {
-            max-width: 60px;
-            width: 100%;
-            height: auto;
-        }
-
-        body[data-paper-size^="thermal-"] .title-cell {
-            width: 100%;
-            font-size: 8px;
-        }
-
-        body[data-paper-size^="thermal-"] .responsive-table {
-            font-size: 8px;
-            margin-top: -6px;
         }
 
         #custom-size-inputs {
             display: none;
         }
 
-        #custom-size-inputs input {
-            width: 45%;
-            display: inline-block;
+        @media print {
+            #printButton {
+                display: none;
+            }
+
+            #setup-print {
+                display: none;
+            }
         }
 
-        #qrCodeContainer {
+        .leftIndent,
+        .amount {
+            padding-left: 30px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 100%;
-            margin-top: 20px;
+            height: 100%;
         }
 
-        #qrcode {
+        .leftIndent,
+        .note {
+            padding-left: 30px;
             display: flex;
-            justify-content: center;
             align-items: center;
+            height: 100%;
         }
 
-        #qrcode img {
-            max-width: 100%;
-            height: auto;
+        .note {
+            padding-left: 30px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-weight: bold;
         }
 
-        #accountInfo {
+        .totalRow,
+        .shippingCostRow,
+        .discountRow,
+        .amountDueRow,
+        .noteDueRow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            padding: 5px 6px;
+            width: 90%;
+            box-sizing: border-box;
+            line-height: 0.3;
+        }
+
+        p {
+            line-height: 0.3;
+        }
+
+        .paymentText {
             text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .paymentQR {
+            display: block;
+            margin: 0 auto;
             margin-top: 10px;
         }
 
-
-        .thermal-table {
-            display: none;
+        .inline {
+            display: inline;
         }
 
-        .regular-table {
-            display: table;
-        }
-
-        body[data-paper-size^="thermal-"] .thermal-table {
-            display: table;
-        }
-
-        body[data-paper-size^="thermal-"] .regular-table {
-            display: none;
+        .center {
+            text-align: center;
         }
 
         #loading-screen {
@@ -373,8 +243,7 @@
 </head>
 
 <body>
-    <div id="loading-screen"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <div id="loading-screen">
         <div class="spinner-border text-primary" role="status">
             <span class="sr-only">Đang tải...</span>
         </div>
@@ -406,104 +275,72 @@
         </select>
         <label for="printerIp">IP máy in:</label>
         <input type="text" id="printerIp" placeholder="Ví dụ: 192.168.1.100" class="form-control mb-2">
-
         <label for="printerPort">Cổng máy in:</label>
         <input type="number" id="printerPort" placeholder="Ví dụ: 9100" class="form-control mb-2">
         <button onclick="printDocument()" class="btn btn-info mb-2">
             <i class="fa fa-print"></i> In
         </button>
-        <button onclick="exportToPDF()" class="btn btn-primary">
+        <button onclick="exportToPDF()" hidden class="btn btn-primary">
             <i class="fa fa-file-pdf"></i> Xuất PDF
         </button>
     </div>
     <div id="content">
-        <div class="header-dau">
-            <div class="shop-name">shop nhà ngố</div>
-            <div class="shop-info">Địa chỉ: 21 Lĩnh Nam - Hoàng Mai - Hà Nội</div>
-            <div class="shop-info">SĐT: 0988.957.087</div>
-            <div class="shop-info">🏦 VP BANK: 113809086 Lê Bích Ngọc</div>
+        <h3>shop nhà ngố</h3>
+        <h1>Địa chỉ: 21 Linh Đường - Linh Đàm - Hà Nội</h1>
+        <h1>SĐT: 0986.857.087</h1>
+        <h1>🏦 VP BANK: 113809086 Lê Bích Ngọc</h1>
+        <h1>................................................</h1>
+        <h3>HÓA ĐƠN BÁN HÀNG</h3>
+        <h1>Khách hàng: <span id="tenkh"></span></h1>
+        <div class="center">
+            <h1 class="inline">SĐT: </h1>
+            <h4 class="inline" id="sodtkh"></h4>
         </div>
-        <hr class="dotted-hr">
-        <table class="header-table">
-            <tr>
-
-                <td class="title-cell">
-                    <p><b>HÓA ĐƠN BÁN HÀNG</b></p>
-                </td>
-
-            </tr>
-        </table>
-
-        <table class="responsive-table customer-info">
-            <tr>
-                <th>Khách hàng: <span id="tenkh"></span></th>
-            </tr>
-            <tr>
-                <th>Số điện thoại: <span id="sodtkh" style="font-size: 13px;"></span></th>
-            </tr>
-            <tr>
-                <th>Địa chỉ: <span id="chinhanh"></span></th>
-            </tr>
-        </table>
-        <hr>
-        <br>
-        <table class="responsive-table regular-table">
-            <thead>
-                <tr>
-                    <th>Tên sản phẩm</th>
-                    <th style="text-align: center;">SL</th>
-                    <th style="text-align: center;">ĐƠN GIÁ</th>
-                    <th style="text-align: right;">TỔNG TIỀN</th>
-                </tr>
-            </thead>
-            <tbody id="orderDetailsBody">
-            </tbody>
-        </table>
-        <table class="responsive-table thermal-table">
-            <thead>
-                <tr>
-                    <th>Tên SP</th>
-                    <th style="text-align: center;">SL</th>
-                    <th style="text-align: center;">ĐƠN GIÁ</th>
-                    <th style="text-align: right;">TỔNG TIỀN</th>
-                </tr>
-            </thead>
-            <tbody id="thermalOrderDetailsBody">
-            </tbody>
-        </table>
-        <hr>
-        <br>
-        <table class="responsive-table">
-            <tr>
-                <th>Tổng tiền:</th>
-                <td><span id="tongGiaTri"></span></td>
-            </tr>
-            <tr>
-                <th>Phí ship:</th>
-                <td><span id="phiShip"></span></td>
-            </tr>
-            <tr>
-                <th>Giảm giá:</th>
-                <td><span id="giamGia"></span></td>
-            </tr>
-            <tr>
-                <th>Khách đưa:</th>
-                <td><span id="khachdatra"></span></td>
-            </tr>
-            <tr>
-                <th>Còn phải thanh toán:</th>
-                <td colspan="3"><span id="conlai"></span></td>
-            </tr>
-            <tr>
-                <th>Ghi chú:</th>
-                <td colspan="3"><span id="ghiChu"></span></td>
-            </tr>
-        </table>
-        <div id="qrCodeContainer" style="display: none;">
-            <div id="qrcode"></div>
-            <p id="accountInfo"></p>
+        <div class="center">
+            <dc class="dc" id="chinhanh"></dc>
+        </div>
+        <div class="invoiceContainer">
+            <table id="table1">
+                <thead>
+                    <tr>
+                        <th>TÊN SP</th>
+                        <th>SL</th>
+                        <th>ĐƠN GIÁ</th>
+                        <th>TỔNG TIỀN</th>
+                    </tr>
+                </thead>
+                <tbody id="orderDetailsBody"></tbody>
+            </table>
+            <div class="totalRow">
+                <p class="leftIndent"><strong>Tổng tiền:</strong></p>
+                <p class="amount"><span id="tongGiaTri"></span></p>
+            </div>
+            <div class="shippingCostRow">
+                <p class="leftIndent"><strong>Phí ship:</strong></p>
+                <p class="amount"><span id="phiShip"></span></p>
+            </div>
+            <div class="discountRow">
+                <p class="leftIndent"><strong>Giảm giá:</strong></p>
+                <p class="amount"><span id="giamGia"></span></p>
+            </div>
+            <div class="amountDueRow">
+                <p class="leftIndent"><strong>Đã thanh toán:</strong></p>
+                <p class="amount"><span id="khachdatra"></span></p>
+            </div>
+            <div class="amountDueRow">
+                <p class="leftIndent"><strong>Còn phải thanh toán:</strong></p>
+                <p class="amount"><span id="conlai"></span></p>
+            </div>
+            <div class="noteDueRow">
+                <p class="leftIndent"><strong>Ghi chú:</strong></p>
+                <p class="note"><span id="ghiChu"></span></p>
+            </div>
+            <p class="paymentText">Thanh toán QR Code</p>
+            <img id="qrCodeImage" src="" alt="QR Code" width="100" height="100" class="paymentQR">
+            <h1>Cảm ơn Quý khách, hẹn gặp lại!</h1>
         </div>
     </div>
+
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbwLSIJXzRVaOzEsFqWtgwDWQpjRKyrp8CM6gfEem6qmzmqkti6HLp-EgwZkiotUX9LP/exec';
 
@@ -521,7 +358,6 @@
             document.getElementById('loading-screen').style.display = 'none';
         }
 
-
         function searchContract(SOBH) {
             showLoading(); // Hiển thị màn hình loading trước khi bắt đầu tải
 
@@ -533,8 +369,6 @@
                         CT_BANGIAO = data.tsDetailResult || [];
 
                         updateUI();
-
-
                     } else {
                         console.error('Lỗi:', data.message);
                     }
@@ -545,8 +379,8 @@
                 .finally(() => {
                     hideLoading(); // Ẩn màn hình loading sau khi tải xong hoặc xảy ra lỗi
                 });
-            ;
         }
+
         function updateUI() {
             document.getElementById('sodtkh').textContent = BAN_GIAO['SĐT'] || '';
             document.getElementById('tenkh').textContent = BAN_GIAO['Khách hàng'] || '';
@@ -556,45 +390,40 @@
             document.getElementById('khachdatra').textContent = formatCurrency(BAN_GIAO['Đã thanh toán'] || '0');
             document.getElementById('conlai').textContent = formatCurrency(BAN_GIAO['Còn phải thanh toán'] || '0');
             document.getElementById('phiShip').textContent = formatCurrency(BAN_GIAO['Phí ship'] || '0');
-            document.getElementById('ghiChu').textContent = (BAN_GIAO['Ghi chú'] || '');
+            document.getElementById('ghiChu').textContent = BAN_GIAO['Ghi chú'] || '';
 
-            updateProductTable(); updatePaymentMethod();
-
+            updateProductTable();
+            updateQRCode();
         }
-
 
         function updateProductTable() {
             const tableBody = document.getElementById('orderDetailsBody');
-            const thermalTableBody = document.getElementById('thermalOrderDetailsBody');
-
             tableBody.innerHTML = '';
-            thermalTableBody.innerHTML = '';
 
             if (Array.isArray(CT_BANGIAO) && CT_BANGIAO.length > 0) {
                 CT_BANGIAO.forEach((item, index) => {
-                    const regularRow = tableBody.insertRow();
-                    regularRow.innerHTML = `
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
                         <td>${item['Tên sản phẩm'] || ''}</td>
-                        <td style="text-align: center;">${formatCurrency(item['Đơn giá'] || '')}</td>
                         <td style="text-align: center;">${item['Số lượng'] || ''}</td>
+                        <td style="text-align: center;">${formatCurrency(item['Đơn giá'] || '')}</td>
                         <td style="text-align: right;">${formatCurrency(item['Thành tiền'])}</td>
                     `;
-
-                    const thermalRow = thermalTableBody.insertRow();
-                    thermalRow.innerHTML = `
-                        <td><span ">${item['Tên sản phẩm'] || ''} </span></td>
-                        <td style="text-align: center;">${item['Số lượng'] || ''}</td>
-                        <td style="text-align: center;">  ${formatCurrency(item['Đơn giá'] || '')} </td>
-                        <td style="text-align: right;"> ${formatCurrency(item['Thành tiền'])}</td>
-                    `;
                 });
-
             } else {
-
                 tableBody.innerHTML = '<tr><td colspan="4">Không có dữ liệu</td></tr>';
-                thermalTableBody.innerHTML = '<tr><td colspan="3">Không có dữ liệu</td></tr>';
             }
+        }
 
+        function updateQRCode() {
+            const amount = BAN_GIAO['Còn phải thanh toán'] || 0;
+            const qrCodeUrl = `https://img.vietqr.io/image/VPbank-113809086-compact.png?amount=${amount}&addInfo=Thanh toan don hang&accountName=LE BIC NGOC`;
+            document.getElementById('qrCodeImage').src = qrCodeUrl;
+        }
+
+        function formatCurrency(value) {
+            if (!value) return '0';
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -606,315 +435,8 @@
                 console.error('Vui lòng cung cấp số hợp đồng trong URL (ví dụ: ?SOBH=HD001)');
                 hideLoading(); // Ẩn màn hình loading nếu không có SOBH
             }
-
         });
-
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString;
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = String(date.getFullYear());
-            return `${day}/${month}/${year}`;
-        }
-        function formatCurrency(value) {
-            if (!value) return '';
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-        }
-
-        function adjustQRCodeSize() {
-            const qrCodeElement = document.getElementById('qrcode');
-            if (qrCodeElement) {
-                const size = getQRCodeSize();
-                qrCodeElement.style.width = size;
-                qrCodeElement.style.height = size;
-                const qrImage = qrCodeElement.querySelector('img');
-                if (qrImage) {
-                    qrImage.style.width = size;
-                    qrImage.style.height = size;
-                }
-            }
-        }
-        function generateQRCode() {
-            const accountSelect = document.getElementById('accountSelect');
-            const selectedAccount = accountSelect.value;
-            const amountElement = document.getElementById('conlai');
-            const amount = parseFloat(amountElement.textContent.replace(/[^\d]/g, ''));
-
-            if (isNaN(amount)) {
-                console.error('Không thể lấy số tiền hợp lệ');
-                return;
-            }
-
-            let bankId, accountNo, accountName;
-            if (selectedAccount === 'vcb') {
-                bankId = '970432';
-                accountNo = '113809086';
-                accountName = 'LE BIC NGOC';
-            }
-
-            const addInfo = `Thanh toan don hang `;
-            const template = 'compact';
-
-            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
-
-            const qrcode = document.getElementById('qrcode');
-            qrcode.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = qrUrl;
-            img.alt = 'QR Code for payment';
-            qrcode.appendChild(img);
-            document.getElementById('qrCodeContainer').style.display = 'flex';
-
-            adjustQRCodeSize();
-        }
-
-        function updatePageFormat() {
-            const size = document.getElementById('select-paper-size').value;
-            const orientation = document.getElementById('select-paper-orientation').value;
-            document.body.setAttribute('data-paper-size', size);
-            document.body.setAttribute('data-paper-orientation', orientation);
-
-            adjustContentSize(size, orientation);
-            adjustFontSize(size);
-            adjustImageSize(size);
-            adjustQRCodeSize();
-            hideElementsForPrint(size); // Thêm dòng này
-        }
-
-
-        function adjustContentSize(size, orientation) {
-            const content = document.getElementById('content');
-            let width, height;
-            if (size === 'thermal-80') {
-                content.style.width = '80mm';
-                content.style.minHeight = 'auto';
-                content.style.height = 'auto';
-                content.style.margin = '0';
-                content.style.padding = '2mm';
-                document.body.style.width = '80mm';
-            } else {
-                switch (size) {
-                    case 'A1': width = '594mm'; height = '841mm'; break;
-                    case 'A2': width = '420mm'; height = '594mm'; break;
-                    case 'A3': width = '297mm'; height = '420mm'; break;
-                    case 'A4': width = '210mm'; height = '297mm'; break;
-                    case 'A5': width = '148mm'; height = '210mm'; break;
-                    case 'A6': width = '105mm'; height = '148mm'; break;
-                    case 'A7': width = '74mm'; height = '105mm'; break;
-                    case 'thermal-80':
-                        width = '80mm';
-                        height = 'auto';
-                        content.style.minHeight = 'auto';
-                        break;
-                    case 'thermal-58':
-                        width = '58mm';
-                        height = 'auto';
-                        content.style.minHeight = 'auto';
-                        break;
-                    case 'custom':
-                        width = document.getElementById('custom-width').value + 'mm';
-                        height = document.getElementById('custom-height').value + 'mm';
-                        break;
-                    default: width = '210mm'; height = '297mm';
-                }
-                if (orientation === 'landscape') {
-                    [width, height] = [height, width];
-                }
-                content.style.width = width;
-                content.style.minHeight = 'auto';
-                content.style.height = 'auto';
-                content.style.overflow = 'visible';
-                // Đặt lại margin và padding
-                content.style.margin = size.startsWith('thermal') ? '0' : '10mm auto';
-                content.style.padding = size.startsWith('thermal') ? '5mm' : '5mm';
-            } content.style.overflow = 'visible';
-
-        }
-        function prepareForPrint() {
-            const size = document.getElementById('select-paper-size').value;
-            if (size === 'thermal-80') {
-                document.body.classList.add('thermal-print');
-                const content = document.getElementById('content');
-                content.style.width = '80mm';
-                content.style.margin = '0';
-                content.style.padding = '2mm';
-
-                // Ẩn các phần tử không cần thiết
-                const elementsToHide = document.querySelectorAll('.hide-on-print');
-                elementsToHide.forEach(el => el.style.display = 'none');
-
-                // Điều chỉnh kích thước font chữ
-                document.body.style.fontSize = '9px';
-            }
-        }
-        function adjustFontSize(size) {
-            const content = document.getElementById('content');
-            let fontSize;
-            switch (size) {
-                case 'A1': fontSize = '18px'; break;
-                case 'A2': fontSize = '16px'; break;
-                case 'A3': fontSize = '14px'; break;
-                case 'A4': fontSize = '12px'; break;
-                case 'A5': fontSize = '10px'; break;
-                case 'A6': fontSize = '9px'; break;
-                case 'A7': fontSize = '8px'; break;
-                case 'thermal-80': fontSize = '8px'; break;
-                case 'thermal-58': fontSize = '6px'; break;
-                case 'custom': fontSize = '12px'; break;
-                default: fontSize = '12px';
-            }
-            content.style.fontSize = fontSize;
-        }
-        function hideElementsForPrint(size) {
-            const elementsToHide = document.querySelectorAll('.hide-on-print');
-            elementsToHide.forEach(el => {
-                el.style.display = size.startsWith('thermal') ? 'none' : '';
-            });
-        }
-        function adjustImageSize(size) {
-            const logo = document.querySelector('.logo');
-            const qrCode = document.querySelector('.qr-code');
-            let imageSize;
-            switch (size) {
-                case 'A1': case 'A2': imageSize = '150px'; break;
-                case 'A3': imageSize = '120px'; break;
-                case 'A4': imageSize = '100px'; break;
-                case 'A5': imageSize = '80px'; break;
-                case 'A6': imageSize = '60px'; break;
-                case 'A7': imageSize = '40px'; break;
-                case 'thermal-80': imageSize = '60px'; break;
-                case 'thermal-58': imageSize = '60px'; break;
-                case 'custom': imageSize = '100px'; break;
-                default: imageSize = '100px';
-            }
-            if (logo) logo.style.maxWidth = imageSize;
-            if (qrCode) qrCode.style.maxWidth = imageSize;
-        }
-
-
-        async function printDocument() {
-            try {
-                updatePageFormat();
-                prepareForPrint(); 
-                const printerIp = document.getElementById('printerIp').value.trim();
-                const printerPort = document.getElementById('printerPort').value.trim();
-                const paperSize = document.getElementById('select-paper-size').value;
-                const orientation = document.getElementById('select-paper-orientation').value;
-
-                if (printerIp && printerPort) {
-                    const contentToPrint = document.getElementById('content').innerHTML;
-                    
-                    const printData = {
-                        content: contentToPrint,
-                        paperSize,
-                        orientation
-                    };
-
-                    const response = await fetch(`http://${printerIp}:${printerPort}/api/print`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(printData),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        alert(`Lệnh in đã được gửi thành công tới máy in tại ${printerIp}:${printerPort}\nKích thước giấy: ${paperSize}\nHướng in: ${orientation}`);
-                    } else {
-                        throw new Error(data.message || 'Không xác định được lỗi từ máy chủ');
-                    }
-                } else {
-                    updatePageFormat();
-                    window.print();
-                }
-            } catch (error) {
-                console.error('Lỗi khi in tài liệu:', error);
-                alert(`Đã xảy ra lỗi khi gửi lệnh in: ${error.message}\nHệ thống sẽ mở form in mặc định.`);
-                updatePageFormat();
-                window.print();
-            }
-        }
-        function getQRCodeSize() {
-            const size = document.getElementById('select-paper-size').value;
-            const contentWidth = document.getElementById('content').offsetWidth;
-            let qrSize;
-
-            switch (size) {
-                case 'A4': qrSize = Math.min(128, contentWidth * 0.3); break;
-                case 'A5': qrSize = Math.min(100, contentWidth * 0.4); break;
-                case 'A6': qrSize = Math.min(80, contentWidth * 0.5); break;
-                case 'A7': qrSize = Math.min(60, contentWidth * 0.6); break;
-                case 'thermal-80': qrSize = Math.min(60, contentWidth * 0.7); break;
-                case 'thermal-58': qrSize = Math.min(50, contentWidth * 0.8); break;
-                case 'custom':
-                    qrSize = Math.min(contentWidth * 0.5, 128);
-                    break;
-                default: qrSize = Math.min(80, contentWidth * 0.4);
-            }
-            return `${Math.round(qrSize)}px`;
-        }
-
-        function exportToPDF() {
-            updatePageFormat();
-            const element = document.getElementById('content');
-            const size = document.getElementById('select-paper-size').value;
-            const orientation = document.getElementById('select-paper-orientation').value;
-
-            let format;
-            let isCustomSize = false;
-            switch (size) {
-                case 'A1': format = 'a1'; break;
-                case 'A2': format = 'a2'; break;
-                case 'A3': format = 'a3'; break;
-                case 'A4': format = 'a4'; break;
-                case 'A5': format = 'a5'; break;
-                case 'A6': format = 'a6'; break;
-                case 'A7': format = [74, 105]; break;
-                case 'thermal-80':
-                    format = [80, 250];
-                    isCustomSize = true;
-                    break;
-                case 'thermal-58':
-                    format = [58, 250];
-                    isCustomSize = true;
-                    break;
-                case 'custom':
-                    format = [
-                        parseFloat(document.getElementById('custom-width').value),
-                        parseFloat(document.getElementById('custom-height').value)
-                    ];
-                    isCustomSize = true;
-                    break;
-                default: format = 'a4';
-            }
-
-            const opt = {
-                margin: 0,
-                filename: 'test.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: true },
-                jsPDF: { unit: 'mm', format: format, orientation: orientation }
-            };
-
-            if (!isCustomSize) {
-                opt.pagebreak = { mode: ['avoid-all', 'css', 'legacy'] };
-            }
-
-            html2pdf().from(element).set(opt).save().catch(function (error) {
-                console.error('Lỗi khi tạo PDF:', error);
-                alert('Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại.');
-            });
-        }
-
-
+        // Thêm các hàm mới
         function updatePaymentMethod() {
             const paymentMethod = document.getElementById('paymentMethod').value;
             const accountSelect = document.getElementById('accountSelect');
@@ -925,7 +447,7 @@
                 updateAccountInfo();
             } else {
                 accountSelect.style.display = 'none';
-                qrCodeContainer.style.display = 'none';
+                if (qrCodeContainer) qrCodeContainer.style.display = 'none';
             }
         }
 
@@ -933,99 +455,125 @@
             const accountSelect = document.getElementById('accountSelect');
             const selectedAccount = accountSelect.options[accountSelect.selectedIndex];
             const accountInfo = document.getElementById('accountInfo');
-            accountInfo.textContent = selectedAccount.text;
+            if (accountInfo) accountInfo.textContent = selectedAccount.text;
 
-            generateQRCode();
+            updateQRCode();
         }
 
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const paymentMethodSelect = document.getElementById('paymentMethod');
+        function updateQRCode() {
+            const amount = BAN_GIAO['Còn phải thanh toán'] || 0;
             const accountSelect = document.getElementById('accountSelect');
-            const paperSizeSelect = document.getElementById('select-paper-size');
+            const selectedAccount = accountSelect.value;
+            let bankId, accountNo, accountName;
 
-            if (paymentMethodSelect) {
-                paymentMethodSelect.addEventListener('change', updatePaymentMethod);
+            if (selectedAccount === 'vcb') {
+                bankId = '970432';
+                accountNo = '113809086';
+                accountName = 'LE BICH NGOC';
             }
 
-            if (accountSelect) {
-                accountSelect.addEventListener('change', updateAccountInfo);
-            }
+            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=Thanh toan don hang&accountName=${encodeURIComponent(accountName)}`;
+            const qrCodeImage = document.getElementById('qrCodeImage');
+            if (qrCodeImage) qrCodeImage.src = qrUrl;
+        }
 
-            if (paperSizeSelect) {
-                paperSizeSelect.addEventListener('change', updatePageFormat);
-            }
+        function updatePageFormat() {
+            const size = document.getElementById('select-paper-size').value;
+            const orientation = document.getElementById('select-paper-orientation').value;
+            document.body.setAttribute('data-paper-size', size);
+            document.body.setAttribute('data-paper-orientation', orientation);
 
-            // Gọi updatePaymentMethod và updatePageFormat lần đầu để set up trạng thái ban đầu
-            updatePaymentMethod();
+            adjustContentSize(size, orientation);
+            adjustFontSize(size);
+        }
+
+        function adjustContentSize(size, orientation) {
+            const content = document.getElementById('content');
+            let width, height;
+            switch (size) {
+                case 'A4': width = '210mm'; height = '297mm'; break;
+                case 'A5': width = '148mm'; height = '210mm'; break;
+                case 'A6': width = '105mm'; height = '148mm'; break;
+                case 'A7': width = '74mm'; height = '105mm'; break;
+                case 'thermal-80': width = '80mm'; height = 'auto'; break;
+                case 'thermal-58': width = '58mm'; height = 'auto'; break;
+                case 'custom':
+                    width = document.getElementById('custom-width').value + 'mm';
+                    height = document.getElementById('custom-height').value + 'mm';
+                    break;
+                default: width = '210mm'; height = '297mm';
+            }
+            if (orientation === 'landscape') {
+                [width, height] = [height, width];
+            }
+            content.style.width = width;
+            content.style.minHeight = height;
+        }
+
+        function adjustFontSize(size) {
+            const content = document.getElementById('content');
+            let fontSize;
+            switch (size) {
+                case 'A4': fontSize = '12px'; break;
+                case 'A5': fontSize = '10px'; break;
+                case 'A6': case 'A7': fontSize = '8px'; break;
+                case 'thermal-80': case 'thermal-58': fontSize = '8px'; break;
+                default: fontSize = '12px';
+            }
+            content.style.fontSize = fontSize;
+        }
+
+        function printDocument() {
             updatePageFormat();
-        });
+            const printerIp = document.getElementById('printerIp').value.trim();
+            const printerPort = document.getElementById('printerPort').value.trim();
+
+            if (printerIp && printerPort) {
+                // Implement logic to send print job to network printer
+                alert(`Gửi lệnh in đến máy in tại ${printerIp}:${printerPort}`);
+            } else {
+                window.print();
+            }
+        }
+
+        function exportToPDF() {
+            updatePageFormat();
+            const element = document.getElementById('content');
+            const opt = {
+                margin: 10,
+                filename: 'hoa-don.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save();
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
-            // Lấy số phiếu từ URL và đặt nó vào phần tử có id 'sophieu'
+            const urlParams = new URLSearchParams(window.location.search);
+            const SOBH = urlParams.get('SOBH');
+            if (SOBH) {
+                searchContract(SOBH);
+            } else {
+                console.error('Vui lòng cung cấp số hợp đồng trong URL (ví dụ: ?SOBH=HD001)');
+                hideLoading();
+            }
 
-
-            const paperSizeSelect = document.getElementById('select-paper-size');
-            const customSizeInputs = document.getElementById('custom-size-inputs');
-
-            paperSizeSelect.addEventListener('change', function () {
-                if (this.value === 'custom') {
-                    customSizeInputs.style.display = 'block';
-                } else {
-                    customSizeInputs.style.display = 'none';
-                }
+            // Thiết lập các event listener
+            document.getElementById('select-paper-size').addEventListener('change', function () {
+                document.getElementById('custom-size-inputs').style.display = this.value === 'custom' ? 'block' : 'none';
                 updatePageFormat();
             });
-
             document.getElementById('select-paper-orientation').addEventListener('change', updatePageFormat);
             document.getElementById('custom-width').addEventListener('input', updatePageFormat);
             document.getElementById('custom-height').addEventListener('input', updatePageFormat);
+            document.getElementById('paymentMethod').addEventListener('change', updatePaymentMethod);
+            document.getElementById('accountSelect').addEventListener('change', updateAccountInfo);
 
             updatePageFormat();
-        });
-
-        function numberToWords(number) {
-            const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
-            const teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
-            const tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
-            const scales = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
-
-            if (number === 0) return 'không';
-
-            function convertGroup(n) {
-                let result = '';
-                if (n >= 100) {
-                    result += units[Math.floor(n / 100)] + ' trăm ';
-                    n %= 100;
-                }
-                if (n >= 20) {
-                    result += tens[Math.floor(n / 10)] + ' ';
-                    n %= 10;
-                }
-                if (n >= 10) {
-                    result += teens[n - 10] + ' ';
-                } else if (n > 0) {
-                    result += units[n] + ' ';
-                }
-                return result.trim();
-            }
-
-            let result = '';
-            let scaleIndex = 0;
-            while (number > 0) {
-                const group = number % 1000;
-                if (group !== 0) {
-                    result = convertGroup(group) + ' ' + scales[scaleIndex] + ' ' + result;
-                }
-                number = Math.floor(number / 1000);
-                scaleIndex++;
-            }
-            // Viết hoa chữ cái đầu tiên
-            result = result.trim();
-            return result.charAt(0).toUpperCase() + result.slice(1);
-        }
-
-
-
+            updatePaymentMethod();
+        })
     </script>
 </body>
 
