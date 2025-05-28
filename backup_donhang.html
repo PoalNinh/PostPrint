@@ -793,6 +793,27 @@
                 }
             },
 
+            // Hàm mới để lấy thông tin nhiều sản phẩm cùng lúc
+            async getMultipleProductsInfo(productCodes) {
+                try {
+                    console.log('Fetching multiple product info for:', productCodes);
+
+                    // Tạo filter condition cho nhiều sản phẩm
+                    const filterConditions = productCodes.map(code => `[Mã SP] = '${code}'`).join(' OR ');
+                    const selector = `Filter(DMSP, ${filterConditions})`;
+
+                    const response = await this.request('DMSP', 'Find', {}, {
+                        Selector: selector
+                    });
+
+                    console.log('Multiple products response:', response);
+                    return response || [];
+                } catch (error) {
+                    console.error('Error fetching multiple products info:', error);
+                    return [];
+                }
+            },
+
             getImageUrl: (fileName) => {
                 if (!fileName) return '';
 
@@ -1007,7 +1028,7 @@
             }
         }
 
-        // Populate Product Table
+        // Populate Product Table - Đã sửa để load tất cả hình ảnh cùng lúc
         async function populateProductTable(chiTietDonHang) {
             const tbody = document.getElementById('productTableBody');
             tbody.innerHTML = '';
@@ -1020,7 +1041,31 @@
 
                 let totalAmount = 0;
 
-                // Xử lý từng sản phẩm
+                // Thu thập tất cả mã sản phẩm
+                const productCodes = chiTietDonHang.map(item => {
+                    return item['Mã SP'] || item['MaSP'] || item['Product ID'] || item['ProductID'];
+                }).filter(code => code); // Loại bỏ các giá trị null/undefined
+
+                console.log('All product codes:', productCodes);
+
+                // Lấy thông tin tất cả sản phẩm cùng lúc
+                const allProductsInfo = await apiService.getMultipleProductsInfo(productCodes);
+                console.log('All products info:', allProductsInfo);
+
+                // Tạo map để tra cứu nhanh thông tin sản phẩm
+                const productInfoMap = new Map();
+                allProductsInfo.forEach(product => {
+                    const maSP = product['Mã SP'];
+                    if (maSP) {
+                        productInfoMap.set(maSP, product);
+                    }
+                });
+
+                console.log('Product info map:', productInfoMap);
+
+                // Tạo tất cả rows và load hình ảnh song song
+                const imageLoadPromises = [];
+
                 for (let index = 0; index < chiTietDonHang.length; index++) {
                     const item = chiTietDonHang[index];
 
@@ -1033,111 +1078,99 @@
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
-                       <td>${index + 1}</td>
-                       <td class="product-name">${item['Tên Sản phẩm'] || ' '}</td>
-                       <td>${item['Đvt'] || 'Cái'}</td>
-                       <td class="number">${formatNumber(soLuong)}</td>
-                       <td class="number">${formatNumber(donGia)}</td>
-                       <td class="number">${formatNumber(thanhTien)}</td>
-                       <td>
-                           <div class="product-image">
-                               <div class="image-loading">Đang tải...</div>
-                           </div>
-                       </td>
-                       <td>${item['Ghi chú'] || ''}</td>
-                   `;
+                      <td>${index + 1}</td>
+                      <td class="product-name">${item['Tên Sản phẩm'] || ' '}</td>
+                      <td>${item['Đvt'] || 'Cái'}</td>
+                      <td class="number">${formatNumber(soLuong)}</td>
+                      <td class="number">${formatNumber(donGia)}</td>
+                      <td class="number">${formatNumber(thanhTien)}</td>
+                      <td>
+                          <div class="product-image">
+                              <div class="image-loading">Đang tải...</div>
+                          </div>
+                      </td>
+                      <td>${item['Ghi chú'] || ''}</td>
+                  `;
                     tbody.appendChild(row);
 
                     // Lấy Mã SP từ CTDonHang
                     const maSP = item['Mã SP'] || item['MaSP'] || item['Product ID'] || item['ProductID'];
 
-                    console.log(`Item ${index + 1} fields:`, Object.keys(item));
-                    console.log(`Item ${index + 1} - Mã SP:`, maSP);
+                    if (maSP && productInfoMap.has(maSP)) {
+                        const productInfo = productInfoMap.get(maSP);
+                        console.log(`Product info for ${maSP}:`, productInfo);
 
-                    if (maSP) {
-                        try {
-                            // Lấy thông tin sản phẩm từ bảng DMSP
-                            const productInfo = await apiService.getProductInfo(maSP);
+                        // Tìm trường hình ảnh trong DMSP
+                        const imageFileName = productInfo['Hình ảnh'] ||
+                            productInfo['Image'] ||
+                            productInfo['Photo'] ||
+                            productInfo['picture'] ||
+                            productInfo['file'] ||
+                            productInfo['File'] ||
+                            productInfo['attachment'] ||
+                            productInfo['Attachment'];
 
-                            if (productInfo) {
-                                console.log(`Product info for ${maSP}:`, productInfo);
-                                console.log(`Product info fields:`, Object.keys(productInfo));
+                        console.log(`Image filename for ${maSP}:`, imageFileName);
 
-                                // Tìm trường hình ảnh trong DMSP
-                                const imageFileName = productInfo['Hình ảnh'] ||
-                                    productInfo['Image'] ||
-                                    productInfo['Photo'] ||
-                                    productInfo['picture'] ||
-                                    productInfo['file'] ||
-                                    productInfo['File'] ||
-                                    productInfo['attachment'] ||
-                                    productInfo['Attachment'];
+                        const container = row.querySelector('.product-image');
 
-                                console.log(`Image filename for ${maSP}:`, imageFileName);
+                        if (imageFileName) {
+                            const imageUrl = apiService.getImageUrl(imageFileName);
+                            console.log(`Image URL for ${maSP}:`, imageUrl);
 
-                                const container = row.querySelector('.product-image');
-                                if (imageFileName) {
-                                    const imageUrl = apiService.getImageUrl(imageFileName);
-                                    console.log(`Image URL for ${maSP}:`, imageUrl);
-
-                                    // Cập nhật hình ảnh
-                                    if (container) {
-                                        imageHandler.updateImageInContainer(container, imageUrl);
-                                    }
-                                } else {
-                                    console.log(`No image found for product ${maSP}`);
-                                    if (container) {
-                                        container.innerHTML = '<div class="no-image">No Image</div>';
-                                    }
-                                }
-                            } else {
-                                console.log(`No product info found for ${maSP}`);
-                                const container = row.querySelector('.product-image');
-                                if (container) {
-                                    container.innerHTML = '<div class="no-image">Không tìm thấy SP</div>';
-                                }
-                            }
-                        } catch (error) {
-                            console.error(`Error loading image for ${maSP}:`, error);
-                            const container = row.querySelector('.product-image');
+                            // Thêm promise load hình ảnh vào danh sách
+                            imageLoadPromises.push(
+                                new Promise((resolve) => {
+                                    imageHandler.updateImageInContainer(container, imageUrl);
+                                    // Không cần đợi image load hoàn thành, chỉ cần bắt đầu load
+                                    setTimeout(resolve, 50); // Delay nhỏ để tránh spam requests
+                                })
+                            );
+                        } else {
+                            console.log(`No image found for product ${maSP}`);
                             if (container) {
-                                container.innerHTML = '<div class="no-image">Lỗi tải ảnh</div>';
+                                container.innerHTML = '<div class="no-image">No Image</div>';
                             }
                         }
                     } else {
-                        console.log(`No Mã SP found for item ${index + 1}`);
+                        console.log(`No product info found for ${maSP}`);
                         const container = row.querySelector('.product-image');
                         if (container) {
-                            container.innerHTML = '<div class="no-image">Không có mã SP</div>';
+                            if (maSP) {
+                                container.innerHTML = '<div class="no-image">Không tìm thấy SP</div>';
+                            } else {
+                                container.innerHTML = '<div class="no-image">Không có mã SP</div>';
+                            }
                         }
                     }
-
-                    // Thêm delay nhỏ giữa các requests để tránh overload
-                    if (index < chiTietDonHang.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                    }
                 }
+
+                // Đợi tất cả hình ảnh bắt đầu load (không cần đợi hoàn thành)
+                await Promise.all(imageLoadPromises);
+                console.log('All images started loading');
 
                 // Add total row
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'total-row';
                 totalRow.innerHTML = `
-                   <td colspan="5" style="padding: 6px; text-align: right; font-weight: bold;">Tổng tiền:</td>
-                   <td colspan="2" style="padding: 6px; text-align: left; font-weight: bold;">${formatNumber(totalAmount)} VNĐ</td>
-                   <td></td>
-               `;
+                  <td colspan="5" style="padding: 6px; text-align: right; font-weight: bold;">Tổng tiền:</td>
+                  <td colspan="2" style="padding: 6px; text-align: left; font-weight: bold;">${formatNumber(totalAmount)} VNĐ</td>
+                  <td></td>
+              `;
                 tbody.appendChild(totalRow);
 
                 // Add notes row
                 const notesRow = document.createElement('tr');
                 notesRow.className = 'notes';
                 notesRow.innerHTML = `
-                   <td colspan="8" style="padding: 6px; text-align: left;">
-                       <strong>Viết bằng chữ: ${numberToWords(totalAmount)}</strong>
-                   </td>
-               `;
+                  <td colspan="8" style="padding: 6px; text-align: left;">
+                      <strong>Viết bằng chữ: ${numberToWords(totalAmount)}</strong>
+                  </td>
+              `;
                 tbody.appendChild(notesRow);
+
             } catch (error) {
+                console.error('Error in populateProductTable:', error);
                 throw error;
             }
         }
