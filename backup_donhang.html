@@ -142,7 +142,6 @@
             padding: 6px 8px;
             font-size: 13px;
             vertical-align: top;
-            background-color: #f8f9fa;
         }
 
         /* Product Table */
@@ -195,30 +194,51 @@
             width: 90px;
         }
 
+        .product-table tr {
+            height: auto;
+            /* Cho phép hàng tự động điều chỉnh */
+        }
+
+        .product-table td {
+            vertical-align: middle;
+            /* Căn giữa nội dung theo chiều dọc */
+            height: auto;
+        }
+
         .image-col {
             width: 80px;
+            min-width: 80px;
+            vertical-align: middle;
         }
 
         .delivery-col {
             width: 60px;
         }
 
-        /* Updated product image styles */
         .product-image {
             width: 70px;
-            height: 50px;
+            height: auto;
+            /* Thay đổi từ 50px thành auto */
+            min-height: 50px;
+            /* Thêm chiều cao tối thiểu */
             background: #f0f0f0;
             margin: 2px auto;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            padding: 2px;
+            /* Thêm padding */
         }
 
         .product-image img {
             max-width: 100%;
-            max-height: 100%;
-            object-fit: cover;
+            max-height: none;
+            /* Bỏ giới hạn chiều cao */
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            /* Thay đổi từ cover thành contain */
             cursor: pointer;
             border-radius: 2px;
         }
@@ -237,7 +257,6 @@
         }
 
         .total-row {
-            background-color: #f8f9fa;
             font-weight: bold;
         }
 
@@ -405,12 +424,39 @@
             display: none;
         }
 
+        @media print {
+            .product-image {
+                height: auto !important;
+                min-height: 40px !important;
+                padding: 1px !important;
+            }
+
+            .product-image img {
+                max-width: 70px !important;
+                max-height: none !important;
+                width: auto !important;
+                height: auto !important;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .product-table tr {
+                height: auto !important;
+                page-break-inside: avoid;
+            }
+        }
+
         /* Print Styles */
         @media print {
+            html {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
             body {
                 padding: 0;
                 margin: 0;
-                font-size: 12px;
+                font-size: 13px;
                 background: white !important;
             }
 
@@ -458,14 +504,6 @@
                 display: table-footer-group;
             }
 
-            /* Ensure images print */
-            .product-image img {
-                max-width: 60px !important;
-                max-height: 40px !important;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
-            }
-
             /* Hide cursor pointer on images */
             .product-image img {
                 cursor: default;
@@ -486,18 +524,23 @@
                 font-size: 18px;
             }
 
+            /* Đồng bộ padding cho tất cả cells */
             .customer-info td,
             .product-table th,
             .product-table td,
             .signature-table td {
-                font-size: 11px;
-                padding: 4px;
+                padding: 6px 8px !important;
+                /* Giống như trên web */
+                font-size: 13px !important;
+                /* Giống như trên web */
             }
 
+            /* Đồng bộ line-height */
             .left-info,
             .right-info {
-                font-size: 11px;
-                line-height: 1.3;
+                font-size: 13px !important;
+                /* Giống như trên web */
+                line-height: 1.4 !important;
             }
         }
     </style>
@@ -554,8 +597,8 @@
                 <td>Người lập đơn: <strong id="loaiKhachHang">Đang tải...</strong></td>
             </tr>
             <tr>
-                <td>Người nhận hàng: <span id="nguoiNhanHang">Đang tải...</span></td>
-                <td style="width: 33.3%;">Số điện thoại: <span id="soDienThoai">Đang tải...</span></td>
+                <td>Người nhận hàng: <strong id="nguoiNhanHang">Đang tải...</strong></td>
+                <td style="width: 33.3%;">Số điện thoại: <strong id="soDienThoai">Đang tải...</strong></td>
                 <td>Ngày hẹn trả: <strong id="hanGiaoHang">Đang tải...</strong></td>
             </tr>
         </table>
@@ -571,7 +614,7 @@
                     <th class="price-col">Đơn giá<br>(chưa VAT)</th>
                     <th class="total-col">Thành tiền<br>(chưa VAT)</th>
                     <th class="image-col">Hình ảnh</th>
-                    <th class="delivery-col">Giao hàng</th>
+                    <th class="delivery-col">Ghi chú</th>
                 </tr>
             </thead>
             <tbody id="productTableBody">
@@ -635,6 +678,13 @@
             APP_NAME: 'MocAnSystem-777046908'
         };
 
+        // Set document title for printing
+        function setDocumentTitle(soPhieu) {
+            if (soPhieu && soPhieu !== 'Đang tải...') {
+                document.title = soPhieu;
+            }
+        }
+
         // State Management
         let state = {
             orderData: null,
@@ -660,6 +710,12 @@
 
                     // Show print status
                     PrintManager.showPrintStatus('Đang chuẩn bị in...');
+
+                    // Set document title for printing filename
+                    const soPhieu = document.getElementById('soPhieu').textContent;
+                    if (soPhieu && soPhieu !== 'Đang tải...') {
+                        document.title = `DonHang_${soPhieu}`;
+                    }
 
                     // Wait for images to load
                     await PrintManager.waitForImages();
@@ -778,7 +834,7 @@
                 }
             },
 
-            // Thêm hàm mới để lấy thông tin sản phẩm từ DMSP
+            // Lấy thông tin sản phẩm từ DMSP
             async getProductInfo(maSP) {
                 try {
                     console.log(`Fetching product info for Mã SP: ${maSP}`);
@@ -793,7 +849,7 @@
                 }
             },
 
-            // Hàm mới để lấy thông tin nhiều sản phẩm cùng lúc
+            // Lấy thông tin nhiều sản phẩm cùng lúc
             async getMultipleProductsInfo(productCodes) {
                 try {
                     console.log('Fetching multiple product info for:', productCodes);
@@ -1012,7 +1068,12 @@
         // Populate Order Header
         function populateOrderHeader(donHang) {
             try {
-                document.getElementById('soPhieu').textContent = donHang['Số ĐH'] || ' ';
+                const soPhieu = donHang['Số ĐH'] || ' ';
+                document.getElementById('soPhieu').textContent = soPhieu;
+
+                // Set document title for printing
+                setDocumentTitle(soPhieu);
+
                 document.getElementById('tenKhachHang').textContent = donHang['Tên khách hàng'] || ' ';
                 document.getElementById('ngayLap').textContent = formatDate(donHang['Ngày']);
                 document.getElementById('diaChiGiao').textContent = donHang['Địa chỉ nhận hàng'] || ' ';
@@ -1024,11 +1085,12 @@
                 document.getElementById('nguoiLapKy').textContent = donHang['Tên người tạo'] || ' ';
                 document.getElementById('ghichudonhang').textContent = donHang['Ghi chú'] || '';
             } catch (error) {
+                console.error('Error populating header:', error);
                 throw error;
             }
         }
 
-        // Populate Product Table - Đã sửa để load tất cả hình ảnh cùng lúc
+        // Populate Product Table
         async function populateProductTable(chiTietDonHang) {
             const tbody = document.getElementById('productTableBody');
             tbody.innerHTML = '';
@@ -1038,8 +1100,6 @@
                     tbody.innerHTML = '<tr><td colspan="8" class="warning">⚠️ Không có chi tiết sản phẩm cho đơn hàng này</td></tr>';
                     return;
                 }
-
-                let totalAmount = 0;
 
                 // Thu thập tất cả mã sản phẩm
                 const productCodes = chiTietDonHang.map(item => {
@@ -1073,24 +1133,22 @@
                     const donGia = parseFloat(item['Đơn giá']) || 0;
                     const thanhTien = parseFloat(item['Thành tiền']) || (soLuong * donGia);
 
-                    totalAmount += thanhTien;
-
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
-                      <td>${index + 1}</td>
-                      <td class="product-name">${item['Tên Sản phẩm'] || ' '}</td>
-                      <td>${item['Đvt'] || 'Cái'}</td>
-                      <td class="number">${formatNumber(soLuong)}</td>
-                      <td class="number">${formatNumber(donGia)}</td>
-                      <td class="number">${formatNumber(thanhTien)}</td>
-                      <td>
-                          <div class="product-image">
-                              <div class="image-loading">Đang tải...</div>
-                          </div>
-                      </td>
-                      <td>${item['Ghi chú'] || ''}</td>
-                  `;
+               <td>${index + 1}</td>
+               <td class="product-name">${item['Tên Sản phẩm'] || ' '} - ${item['Quy cách'] || ' '} cm - ${item['Chất liệu loại vật tư'] || ' '}</td>
+               <td>${item['Đvt'] || 'Cái'}</td>
+               <td class="number">${formatNumber(soLuong)}</td>
+               <td class="number">${formatNumber(donGia)}</td>
+               <td class="number">${formatNumber(thanhTien)}</td>
+               <td>
+                   <div class="product-image">
+                       <div class="image-loading">Đang tải...</div>
+                   </div>
+               </td>
+               <td>${item['Ghi chú'] || ''}</td>
+           `;
                     tbody.appendChild(row);
 
                     // Lấy Mã SP từ CTDonHang
@@ -1145,29 +1203,65 @@
                     }
                 }
 
-                // Đợi tất cả hình ảnh bắt đầu load (không cần đợi hoàn thành)
-                await Promise.all(imageLoadPromises);
-                console.log('All images started loading');
+                // Lấy thông tin từ state.orderData.header (đã load từ bảng DonHang)
+                const donHang = state.orderData.header;
+
+                // Lấy các thông tin từ bảng DonHang
+                const thanhTienFromDB = parseFloat(donHang['Thành tiền'] || 0);
+                const vatRate = parseFloat(donHang['VAT'] || 0);
+                const tienVAT = thanhTienFromDB * vatRate;
+                const tongTienFromDB = parseFloat(donHang['Tổng tiền'] || 0);
+
+                // Format VAT thành phần trăm (0.08 -> 8%)
+                const vatPercent = `${Math.round(vatRate * 100)}%`;
+
+                // Format các số
+                const thanhTienDisplay = formatNumber(thanhTienFromDB);
+                const tienVATDisplay = formatNumber(tienVAT);
+                const tongTienDisplay = formatNumber(tongTienFromDB);
 
                 // Add total row
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'total-row';
                 totalRow.innerHTML = `
-                  <td colspan="5" style="padding: 6px; text-align: right; font-weight: bold;">Tổng tiền:</td>
-                  <td colspan="2" style="padding: 6px; text-align: left; font-weight: bold;">${formatNumber(totalAmount)} VNĐ</td>
-                  <td></td>
-              `;
+           <td colspan="5" style="padding: 6px; text-align: center; font-weight: bold;">Tổng tiền</td>
+           <td style="padding: 6px; text-align: right; font-weight: bold;">${thanhTienDisplay} VNĐ</td>
+           <td colspan="2"></td>
+       `;
                 tbody.appendChild(totalRow);
 
-                // Add notes row
+                // Add VAT row
+                const vatRow = document.createElement('tr');
+                vatRow.className = 'total-row';
+                vatRow.innerHTML = `
+           <td colspan="5" style="padding: 6px; text-align: center; font-weight: bold;">VAT ${vatPercent}</td>
+           <td style="padding: 6px; text-align: right; font-weight: bold;">${tienVATDisplay} VNĐ</td>
+           <td colspan="2"></td>
+       `;
+                tbody.appendChild(vatRow);
+
+                // Add grand total row
+                const grandTotalRow = document.createElement('tr');
+                grandTotalRow.className = 'total-row';
+                grandTotalRow.innerHTML = `
+           <td colspan="5" style="padding: 6px; text-align: center; font-weight: bold;">TỔNG TIỀN THANH TOÁN</td>
+           <td style="padding: 6px; text-align: right; font-weight: bold;">${tongTienDisplay} VNĐ</td>
+           <td colspan="2"></td>
+       `;
+                tbody.appendChild(grandTotalRow);
+
+                // Add notes row - sử dụng tổng tiền từ database
                 const notesRow = document.createElement('tr');
-                notesRow.className = 'notes';
                 notesRow.innerHTML = `
-                  <td colspan="8" style="padding: 6px; text-align: left;">
-                      <strong>Viết bằng chữ: ${numberToWords(totalAmount)}</strong>
-                  </td>
-              `;
+           <td colspan="8" style="padding: 6px; text-align: left; font-style: italic;">
+               <strong>Viết bằng chữ: ${numberToWords(tongTienFromDB)}</strong>
+           </td>
+       `;
                 tbody.appendChild(notesRow);
+
+                // Đợi tất cả hình ảnh bắt đầu load (không cần đợi hoàn thành)
+                await Promise.all(imageLoadPromises);
+                console.log('All images started loading');
 
             } catch (error) {
                 console.error('Error in populateProductTable:', error);
@@ -1252,6 +1346,7 @@
                 document.getElementById('printBtn').disabled = false;
 
             } catch (error) {
+                console.error('Error initializing order data:', error);
                 showError(error.message);
 
                 // Disable print control if data loading fails
@@ -1263,6 +1358,7 @@
         window.PrintManager = PrintManager;
         window.printDocument = printDocument;
 
+        // Disable right-click and keyboard shortcuts for security
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
