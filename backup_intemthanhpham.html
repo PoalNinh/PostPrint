@@ -263,6 +263,14 @@
         }
 
         function calculateBoxQuantity(boxIndex, totalBoxes, totalQuantity, maxPcsPerBox) {
+            // Tổng sức chứa tối đa
+            const maxCapacity = totalBoxes * maxPcsPerBox;
+            // Nếu tổng sức chứa nhỏ hơn tổng số lượng, thùng cuối cùng lấy hết phần còn lại
+            if (boxIndex === totalBoxes && maxCapacity < totalQuantity) {
+                // Số lượng còn lại cho thùng cuối
+                return totalQuantity - maxPcsPerBox * (totalBoxes - 1);
+            }
+            // Bình thường, mỗi thùng lấy tối đa maxPcsPerBox hoặc phần còn lại nếu ít hơn
             const packedQuantity = (boxIndex - 1) * maxPcsPerBox;
             const remainingQuantity = totalQuantity - packedQuantity;
             return Math.min(remainingQuantity, maxPcsPerBox);
