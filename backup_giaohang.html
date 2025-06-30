@@ -37,16 +37,20 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
         }
 
         .print-btn {
             background: #e74c3c;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             transition: background 0.3s;
         }
@@ -60,12 +64,40 @@
             cursor: not-allowed;
         }
 
+        .print-btn-no-header {
+            background: #3498db;
+        }
+
+        .print-btn-no-header:hover {
+            background: #2980b9;
+        }
+
+        .print-btn-a5 {
+            background: #27ae60;
+        }
+
+        .print-btn-a5:hover {
+            background: #229954;
+        }
+
+        .print-btn-a5-no-header {
+            background: #f39c12;
+        }
+
+        .print-btn-a5-no-header:hover {
+            background: #e67e22;
+        }
+
         /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 20px;
+        }
+
+        .header.hidden-content {
+            visibility: hidden;
         }
 
         .logo {
@@ -87,14 +119,13 @@
             text-align: center;
             font-size: 23px;
             font-weight: bold;
-            margin-bottom: 2px;
             letter-spacing: 2px;
         }
 
         .order-number {
             text-align: center;
             font-size: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             font-style: italic;
         }
 
@@ -130,7 +161,7 @@
         }
 
         .product-table th {
-            background-color: #ffe599;
+            background-color: #8bc53f;
             font-weight: bold;
             border: 1px solid #000;
             padding: 6px 4px;
@@ -281,13 +312,11 @@
             padding: 4px 6px;
         }
 
-        /* Print Styles */
+        /* Print A4 Styles */
         @media print {
-
             @page {
                 size: A4;
                 margin: 8mm !important;
-                /* giảm margin */
             }
 
             html {
@@ -362,7 +391,16 @@
     <!-- Print Controls -->
     <div class="print-controls">
         <button class="print-btn" onclick="printDocument()" id="printBtn">
-            🖨️ In phiếu giao hàng
+            🖨️ In A4 có tiêu đề
+        </button>
+        <button class="print-btn print-btn-no-header" onclick="printDocumentNoHeader()" id="printBtnNoHeader">
+            📄 In A4 không tiêu đề
+        </button>
+        <button class="print-btn print-btn-a5" onclick="printDocumentA5()" id="printBtnA5">
+            📋 In A5 có tiêu đề
+        </button>
+        <button class="print-btn print-btn-a5-no-header" onclick="printDocumentA5NoHeader()" id="printBtnA5NoHeader">
+            📃 In A5 không tiêu đề
         </button>
     </div>
 
@@ -380,7 +418,7 @@
 
     <div class="container">
         <!-- Header -->
-        <div class="header">
+        <div class="header" id="headerSection">
             <div class="logo">
                 <img src="https://poalninh.github.io/PostPrint/logo moc an-01.png" alt="Logo Mộc Ấn">
             </div>
@@ -389,7 +427,7 @@
         <!-- Title and Order Number -->
         <div class="title">PHIẾU GIAO HÀNG</div>
         <div class="order-number">
-            <div style="margin-bottom: 10px;">Ngày <span id="ngayGiao">11 tháng 06 năm 2025</span></div>
+            <div style="margin-bottom: 5px;">Ngày <span id="ngayGiao">11 tháng 06 năm 2025</span></div>
 
             <div style="font-weight: bold;">Số: <span id="soPhieuGH">GH230610014006</span></div>
 
@@ -418,7 +456,7 @@
                     <th rowspan="2" class="stt-col">STT</th>
                     <th rowspan="2" style="text-align: center;">NỘI DUNG</th>
                     <th rowspan="2" class="so-kien-col">ĐVT</th>
-                    <th colspan="3" style="text-align: center; background-color: #ffe599; font-weight: bold;">SỐ LƯỢNG
+                    <th colspan="3" style="text-align: center; font-weight: bold;">SỐ LƯỢNG
                     </th>
                     <th rowspan="2" class="xac-nhan-col">XÁC NHẬN</th>
                     <th rowspan="2" class="ghi-chu-col">GHI CHÚ</th>
@@ -456,7 +494,7 @@
             </div>
             <div class="signature-box">
                 <div class="signature-title">Người lập</div>
-                <div class="signature-name" id="nguoiTao"></div>
+                <div class="signature-name" id="nguoiLap"></div>
             </div>
         </div>
     </div>
@@ -484,42 +522,178 @@
             loading: false
         };
 
+        // Dynamic CSS injection for A5 printing
+        function injectA5PrintCSS() {
+            const existingStyle = document.getElementById('a5-print-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+
+            const style = document.createElement('style');
+            style.id = 'a5-print-style';
+            style.textContent = `
+                @media print {
+                    @page {
+                        size: A5 landscape;
+                        margin: 5mm !important;
+                    }
+
+                    body {
+                        font-size: 11px !important;
+                    }
+
+                    .title {
+                        font-size: 18px !important;
+                    }
+
+                    .order-number {
+                        font-size: 13px !important;
+                    }
+
+                    .customer-info td {
+                        padding: 4px !important;
+                        font-size: 12px !important;
+                    }
+
+                    .product-table th,
+                    .product-table td {
+                        padding: 3px 2px !important;
+                        font-size: 10px !important;
+                    }
+
+                    .signature-box {
+                        height: 100px !important;
+                    }
+
+                    .signature-title {
+                        font-size: 12px !important;
+                        padding: 6px !important;
+                    }
+
+                    .signature-name {
+                        font-size: 11px !important;
+                    }
+
+                    .notes {
+                        font-size: 11px !important;
+                    }
+
+                    .delivery-notes {
+                        font-size: 11px !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function removeA5PrintCSS() {
+            const existingStyle = document.getElementById('a5-print-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+        }
+
         // Print Functions
         const PrintManager = {
-            print: async () => {
+            print: async (hideHeader = false, isA5 = false) => {
                 try {
                     if (!state.deliveryData) {
                         alert('Vui lòng đợi dữ liệu tải xong trước khi in!');
                         return;
                     }
 
-                    const printBtn = document.getElementById('printBtn');
-                    const originalText = printBtn.innerHTML;
-                    printBtn.disabled = true;
-                    printBtn.innerHTML = '⏳ Đang in...';
+                    const buttons = {
+                        printBtn: document.getElementById('printBtn'),
+                        printBtnNoHeader: document.getElementById('printBtnNoHeader'),
+                        printBtnA5: document.getElementById('printBtnA5'),
+                        printBtnA5NoHeader: document.getElementById('printBtnA5NoHeader')
+                    };
+
+                    const headerSection = document.getElementById('headerSection');
+
+                    // Determine which button was clicked
+                    let currentBtn, originalText;
+                    if (isA5 && hideHeader) {
+                        currentBtn = buttons.printBtnA5NoHeader;
+                        originalText = '📃 In A5 không tiêu đề';
+                    } else if (isA5 && !hideHeader) {
+                        currentBtn = buttons.printBtnA5;
+                        originalText = '📋 In A5 có tiêu đề';
+                    } else if (!isA5 && hideHeader) {
+                        currentBtn = buttons.printBtnNoHeader;
+                        originalText = '📄 In A4 không tiêu đề';
+                    } else {
+                        currentBtn = buttons.printBtn;
+                        originalText = '🖨️ In A4 có tiêu đề';
+                    }
+
+                    currentBtn.disabled = true;
+                    currentBtn.innerHTML = '⏳ Đang in...';
 
                     PrintManager.showPrintStatus('Đang chuẩn bị in...');
 
+                    // Inject A5 CSS if needed
+                    if (isA5) {
+                        injectA5PrintCSS();
+                    } else {
+                        removeA5PrintCSS();
+                    }
+
+                    // Ẩn header nhưng giữ khoảng trống
+                    if (hideHeader) {
+                        headerSection.classList.add('hidden-content');
+                    }
+
                     const soPhieu = document.getElementById('soPhieuGH').textContent;
                     if (soPhieu && soPhieu !== 'Đang tải...') {
-                        document.title = `PhieuGiaoHang_${soPhieu}`;
+                        const size = isA5 ? 'A5' : 'A4';
+                        document.title = `PhieuGiaoHang_${soPhieu}_${size}`;
                     }
 
                     PrintManager.hidePrintStatus();
                     window.print();
 
+                    // Khôi phục header sau khi in
+                    if (hideHeader) {
+                        headerSection.classList.remove('hidden-content');
+                    }
+
+                    // Remove A5 CSS after printing
+                    if (isA5) {
+                        setTimeout(() => {
+                            removeA5PrintCSS();
+                        }, 1000);
+                    }
+
                     setTimeout(() => {
-                        printBtn.disabled = false;
-                        printBtn.innerHTML = originalText;
+                        currentBtn.disabled = false;
+                        currentBtn.innerHTML = originalText;
                     }, 1000);
 
                 } catch (error) {
                     console.error('Print error:', error);
                     alert('Có lỗi xảy ra khi in. Vui lòng thử lại!');
 
-                    const printBtn = document.getElementById('printBtn');
-                    printBtn.disabled = false;
-                    printBtn.innerHTML = '🖨️ In phiếu giao hàng';
+                    // Reset all buttons
+                    const buttons = [
+                        { btn: document.getElementById('printBtn'), text: '🖨️ In A4 có tiêu đề' },
+                        { btn: document.getElementById('printBtnNoHeader'), text: '📄 In A4 không tiêu đề' },
+                        { btn: document.getElementById('printBtnA5'), text: '📋 In A5 có tiêu đề' },
+                        { btn: document.getElementById('printBtnA5NoHeader'), text: '📃 In A5 không tiêu đề' }
+                    ];
+
+                    buttons.forEach(({ btn, text }) => {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = text;
+                        }
+                    });
+
+                    // Khôi phục header nếu có lỗi
+                    document.getElementById('headerSection').classList.remove('hidden-content');
+
+                    // Remove A5 CSS if error
+                    removeA5PrintCSS();
 
                     PrintManager.hidePrintStatus();
                 }
@@ -537,9 +711,21 @@
             }
         };
 
-        // Global print function
+        // Global print functions
         function printDocument() {
-            PrintManager.print();
+            PrintManager.print(false, false); // A4 có tiêu đề
+        }
+
+        function printDocumentNoHeader() {
+            PrintManager.print(true, false); // A4 không tiêu đề
+        }
+
+        function printDocumentA5() {
+            PrintManager.print(false, true); // A5 có tiêu đề
+        }
+
+        function printDocumentA5NoHeader() {
+            PrintManager.print(true, true); // A5 không tiêu đề
         }
 
         // API Service
@@ -676,7 +862,7 @@
                 // Thêm thông tin ký tên từ bảng GiaoHang - lookup tên thật từ mã NV
                 document.getElementById('nguoiNhanHangKy').textContent = giaoHang['Người nhận hàng'] || '';
                 document.getElementById('taiXe').textContent = getTenNhanVien(giaoHang['Tài xế'], danhSachNhanVien);
-                document.getElementById('nguoiTao').textContent = getTenNhanVien(giaoHang['Người tạo'], danhSachNhanVien);
+                document.getElementById('nguoiLap').textContent = getTenNhanVien(giaoHang['Người tạo'], danhSachNhanVien);
 
             } catch (error) {
                 console.error('Error populating header:', error);
@@ -691,7 +877,7 @@
 
             try {
                 if (chiTietGiaoHang.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="warning">⚠️ Không có chi tiết sản phẩm cho phiếu giao hàng này</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="warning">⚠️ Không có chi tiết sản phẩm cho phiếu giao hàng này</td></tr>';
                     return;
                 }
 
@@ -707,11 +893,10 @@
 
                     const tenSanPham = item['Tên Sản phẩm'] || '';
                     const soDH = item['Số ĐH'] || '';
-                    const noiDung = tenSanPham + (soDH ? `<br>SỐ ĐH: <span style="font-weight: normal;">${soDH}</span>` : '');
 
                     row.innerHTML = `
                         <td>${index + 1}</td>
-                        <td class="product-name">${noiDung}</td>
+                        <td class="product-name">${tenSanPham}</td>
                         <td>${dvt}</td>
                         <td class="number">${formatNumber(thucGiao)}</td>
                         <td class="number">${formatNumber(buHao)}</td>
@@ -731,7 +916,7 @@
         // Show Error
         function showError(message) {
             const tbody = document.getElementById('productTableBody');
-            tbody.innerHTML = `<tr><td colspan="10" class="error">❌ Lỗi: ${message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="error">❌ Lỗi: ${message}</td></tr>`;
 
             const fields = ['soPhieuGH', 'ngayGiao', 'tenKhachHang', 'soDienThoai', 'diaChiGiaoHang', 'nguoiLienHe', 'hinhThucVanChuyen'];
             fields.forEach(field => {
@@ -751,6 +936,10 @@
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
                 printDocument();
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+                e.preventDefault();
+                printDocumentA5();
             }
         });
 
@@ -772,42 +961,53 @@
                 populateDeliveryHeader(deliveryData.header, deliveryData.nhanVien);
                 await populateProductTable(deliveryData.details);
 
-                // Enable print control after data is loaded
+                // Enable print controls after data is loaded
                 document.getElementById('printBtn').disabled = false;
+                document.getElementById('printBtnNoHeader').disabled = false;
+                document.getElementById('printBtnA5').disabled = false;
+                document.getElementById('printBtnA5NoHeader').disabled = false;
 
             } catch (error) {
                 console.error('Error initializing delivery data:', error);
                 showError(error.message);
 
-                // Disable print control if data loading fails
+                // Disable print controls if data loading fails
                 document.getElementById('printBtn').disabled = true;
+                document.getElementById('printBtnNoHeader').disabled = true;
+                document.getElementById('printBtnA5').disabled = true;
+                document.getElementById('printBtnA5NoHeader').disabled = true;
             }
         }
 
         // Export functions for external use
         window.PrintManager = PrintManager;
         window.printDocument = printDocument;
+        window.printDocumentNoHeader = printDocumentNoHeader;
+        window.printDocumentA5 = printDocumentA5;
+        window.printDocumentA5NoHeader = printDocumentA5NoHeader;
 
         // Disable right-click and keyboard shortcuts for security
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        }, false);
+        // document.addEventListener('contextmenu', function (e) {
+        //     e.preventDefault();
+        // }, false);
 
-        document.onkeydown = function (e) {
-            if (e.keyCode == 123) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
-                return false;
-            }
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
-                return false;
-            }
-        };
+        // document.onkeydown = function (e) {
+        //     if (e.keyCode == 123) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        //     if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+        //         return false;
+        //     }
+        // };
     </script>
+
+    <!-- <script src="https://mocan.gpems.net/giaohang.js"></script> -->
 </body>
 
 </html>
