@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Đề Nghị Yêu Cầu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .form-row label {
+            font-weight: bold;
+            width: 150px;
+            flex-shrink: 0;
+        }
+
+        .form-row span {
+            flex: 1;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+            margin-left: 10px;
+        }
+
+        .table-section {
+            margin: 20px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .data-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .signature-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-box p {
+            margin: 0 0 60px 0;
+            font-weight: bold;
+        }
+
+        .signature-box .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px 0;
+            border-top: 2px dashed #ccc;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        @media print {
+            .button-container {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                max-width: none;
+                padding: 0;
+            }
+        }
+
+        .status-approved {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="button-container">
+            <button class="btn" onclick="printForm()">🖨️ In Phiếu</button>
+            <button class="btn btn-success" onclick="exportToPDF()">📄 Xuất PDF</button>
+            <button class="btn btn-warning" onclick="exportToWord()">📝 Xuất Word</button>
+        </div>
+
+        <div class="header">
+            <h1>Phiếu Đề Nghị Yêu Cầu</h1>
+        </div>
+
+        <div class="form-section">
+            <div class="form-row">
+                <label>ID Yêu Cầu:</label>
+                <span id="idYeuCau"></span>
+            </div>
+            <div class="form-row">
+                <label>Ngày Yêu Cầu:</label>
+                <span id="ngayYeuCau"></span>
+            </div>
+            <div class="form-row">
+                <label>Người Yêu Cầu:</label>
+                <span id="nguoiYeuCau"></span>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h3>Chi Tiết Hàng Hóa:</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã Hàng</th>
+                        <th>Tên Hàng</th>
+                        <th>Đơn Vị</th>
+                        <th>Số Lượng</th>
+                        <th>Đơn Giá</th>
+                        <th>Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="maHang"></td>
+                        <td id="tenHang"></td>
+                        <td id="donVi"></td>
+                        <td id="soLuong"></td>
+                        <td id="donGia"></td>
+                        <td id="thanhTien"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="total-amount">
+                Tổng cộng: <span id="tongTien"></span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-row">
+                <label>Ghi Chú:</label>
+                <span id="ghiChu"></span>
+            </div>
+            <div class="form-row">
+                <label>Trạng Thái:</label>
+                <span id="trangThai"></span>
+            </div>
+            <div class="form-row">
+                <label>Người Duyệt:</label>
+                <span id="nguoiDuyet"></span>
+            </div>
+            <div class="form-row">
+                <label>Ghi Chú Duyệt:</label>
+                <span id="ghiChuDuyet"></span>
+            </div>
+            <div class="form-row">
+                <label>Ngày Duyệt:</label>
+                <span id="ngayDuyet"></span>
+            </div>
+            <div class="form-row">
+                <label>Lịch Sử:</label>
+                <span id="lichSu"></span>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <p>Người Yêu Cầu</p>
+                <div class="signature-line">
+                    <span id="signatureNguoiYeuCau"></span>
+                </div>
+            </div>
+            <div class="signature-box">
+                <p>Người Duyệt</p>
+                <div class="signature-line">
+                    <span id="signatureNguoiDuyet"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hàm lấy parameter từ URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Hàm format số tiền
+        function formatCurrency(amount) {
+            if (!amount || amount === '') return '';
+            const number = parseFloat(amount);
+            if (isNaN(number)) return amount;
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(number);
+        }
+
+        // Hàm format số lượng
+        function formatNumber(num) {
+            if (!num || num === '') return '';
+            const number = parseFloat(num);
+            if (isNaN(number)) return num;
+            return new Intl.NumberFormat('vi-VN').format(number);
+        }
+
+        // Hàm format trạng thái
+        function formatStatus(status) {
+            const statusElement = document.getElementById('trangThai');
+            statusElement.textContent = status;
+            
+            switch(status.toLowerCase()) {
+                case 'approved':
+                case 'đã duyệt':
+                case 'da duyet':
+                    statusElement.className = 'status-approved';
+                    break;
+                case 'pending':
+                case 'chờ duyệt':
+                case 'cho duyet':
+                    statusElement.className = 'status-pending';
+                    break;
+                case 'rejected':
+                case 'từ chối':
+                case 'tu choi':
+                    statusElement.className = 'status-rejected';
+                    break;
+                default:
+                    statusElement.className = '';
+            }
+        }
+
+        // Hàm load dữ liệu từ URL
+        function loadDataFromUrl() {
+            // Load thông tin yêu cầu
+            document.getElementById('idYeuCau').textContent = getUrlParameter('idYeuCau') || '';
+            document.getElementById('ngayYeuCau').textContent = getUrlParameter('ngayYeuCau') || '';
+            document.getElementById('nguoiYeuCau').textContent = getUrlParameter('nguoiYeuCau') || '';
+            
+            // Load thông tin sản phẩm
+            document.getElementById('maHang').textContent = getUrlParameter('maHang') || '';
+            document.getElementById('tenHang').textContent = getUrlParameter('tenHang') || '';
+            document.getElementById('donVi').textContent = getUrlParameter('donVi') || '';
+            document.getElementById('soLuong').textContent = formatNumber(getUrlParameter('soLuong')) || '';
+            document.getElementById('donGia').textContent = formatCurrency(getUrlParameter('donGia')) || '';
+            document.getElementById('thanhTien').textContent = formatCurrency(getUrlParameter('thanhTien')) || '';
+            document.getElementById('tongTien').textContent = formatCurrency(getUrlParameter('thanhTien')) || '';
+            
+            // Load thông tin khác
+            document.getElementById('ghiChu').textContent = getUrlParameter('ghiChu') || '';
+            document.getElementById('nguoiDuyet').textContent = getUrlParameter('nguoiDuyet') || '';
+            document.getElementById('ghiChuDuyet').textContent = getUrlParameter('ghiChuDuyet') || '';
+            document.getElementById('ngayDuyet').textContent = getUrlParameter('ngayDuyet') || '';
+            document.getElementById('lichSu').textContent = getUrlParameter('lichSu') || '';
+            
+            // Format trạng thái
+            const trangThai = getUrlParameter('trangThai') || '';
+            if (trangThai) {
+                formatStatus(trangThai);
+            }
+
+            // Load chữ ký
+            document.getElementById('signatureNguoiYeuCau').textContent = getUrlParameter('nguoiYeuCau') || '';
+            document.getElementById('signatureNguoiDuyet').textContent = getUrlParameter('nguoiDuyet') || '';
+        }
+
+        // Hàm in phiếu
+        function printForm() {
+            window.print();
+        }
+
+        // Hàm xuất PDF
+        function exportToPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `phieu-yeu-cau-${getUrlParameter('idYeuCau') || 'form'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Ẩn nút trước khi xuất
+            const buttonContainer = document.querySelector('.button-container');
+            buttonContainer.style.display = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                buttonContainer.style.display = 'block';
+            });
+        }
+
+        // Hàm xuất Word (HTML format)
+        function exportToWord() {
+            const buttonContainer = document.querySelector('.button-container');
+            buttonContainer.style.display = 'none';
+            
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], {
+                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `phieu-yeu-cau-${getUrlParameter('idYeuCau') || 'form'}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            buttonContainer.style.display = 'block';
+        }
+
+        // Load dữ liệu khi trang được tải
+        window.onload = function() {
+            loadDataFromUrl();
+        };
+    </script>
+</body>
+</html>
